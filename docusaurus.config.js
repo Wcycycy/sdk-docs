@@ -12,7 +12,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 const config = {
   title: 'Welcome to Dubbing AI SDK documentation.',
   tagline: 'Dubbing AI is a real-time voice changer for gaming, streaming,and meetings, offering 500+ AI voices and 100,000+ meme soundboards with low latency.',
-  favicon: 'img/logo.png',
+  favicon: 'img/purple_logo.png',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -80,13 +80,15 @@ const config = {
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
       colorMode: {
-        respectPrefersColorScheme: true,
+        defaultMode: 'light',
+        disableSwitch: true,
+        respectPrefersColorScheme: false,
       },
       navbar: {
-        title: 'Dubbing AI',
+        //title: 'Dubbing AI',
         logo: {
           alt: 'My Site Logo',
-          src: 'img/logo.png',
+          src: 'img/LOGO.svg',
         },
         items: [
           {
