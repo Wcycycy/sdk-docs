@@ -9,3 +9,10 @@
   height: 200px;
   width: 200px;
 }
+
+.featureImg {
+  width: auto;     /* 自定义宽度 */
+  height: 200px;     /* 自动等比例 */
+  margin: 0 auto;   /* 居中 */
+  display: block;
+}
