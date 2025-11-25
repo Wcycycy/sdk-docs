@@ -1,0 +1,37 @@
+---
+sidebar_position: 3
+---
+
+# Login with Signature
+
+Once the client receives the signed token from your server, it can log in through the SDK.
+
+## Example Code
+
+### c++
+```c
+DUBBING::DubbingSdk* client = DUBBING::DubbingSdk::getInstance();    
+std::string signStrs = "access_key=\"d5HUuanfPGrVO0pKeTr8Ao4Pf0wgA8Pth34cxUP1\",timestamp=\"1683274422\",nonce=\"kzMDayDVWLQzv9Wz\",id=\"1\",signature=\"7OROvwjagFMNFNE7TXyyWIltby8=\"";
+    
+//Login
+int loginOK = client->login(signStrs.c_str());
+if (loginOK != 0)
+    {
+        return -1;
+    }    
+```
+
+### swift
+```swift
+let authorization = "access_key=\"abcde\",timestamp=\"1678418089\",nonce=\"H3ETaLYPbkyBgpLU\",id=\"518\",signature=\"28XsNr43pqS-s3ACIIctQbiqosw=\""
+        DBRtvcManager.shared.login(authorization: authorization) {
+            //login successfully
+        } failure: { errorString in
+            //login failed errorString
+        }
+```
+
+### Kotlin
+```kotlin
+val token = "access_key=\"abcde\",timestamp=\"111\",nonce=\"aaa\",id=\"518\",signature=\"GaVZNzX0fUlkIbQa1A6558vZz4s=\""
+```
