@@ -1,8 +1,8 @@
 {
-  "label": "Tutorial - Basics",
+  "label": "Integrations",
   "position": 2,
   "link": {
     "type": "generated-index",
-    "description": "5 minutes to learn the most important Docusaurus concepts."
+    "description": "The following guide helps you integrate the Dubbing AI Voice Changer SDK into your project."
   }
 }
