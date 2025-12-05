@@ -1,7 +1,8 @@
 {
-  "label": "Tutorial - Extras",
+  "label": "Integration",
   "position": 3,
   "link": {
-    "type": "generated-index"
+    "type": "generated-index",
+    "description": "Next, continue based on the platform where you want to integrate the Dubbing SDK."
   }
 }
