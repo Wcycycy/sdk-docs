@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # Quick Start
 
 :::caution
@@ -126,3 +130,86 @@ engine.releaseEngine()
 
 If you only need to download the resources, you can perform steps 1 and 2 in Direct Use of Voice Changer.
 
+### Checking if Resource Download is Required
+
+If you only need to **check the required resource files**, you can call the following method.
+
+```kotlin
+engine.checkFile()
+```
+
+Then, handle the result in the `VCEngineCallback`'s `onActionResult` callback. See the example code below.
+
+**Note:** If files need to be downloaded, the `msg` parameter will return a **JSON string**, for example:
+`{"fileCount":0,"fileLength":100000}`.
+* `fileCount` indicates the number of files that need to be downloaded.
+* `fileLength` indicates the total size of the files in **bytes**. This size is not an exact value but can be used for display purposes in the user interface.
+
+```kotlin
+if (action == VCAction.CHECK_FILE) {
+    if (code == VCEngineCode.SUCCESS) {
+        Log.d("tag", "Resource files already downloaded")
+    } else {
+        msg?.let {
+            val obj = JSONObject(msg)
+            var fileCount = 0L
+            var fileLength = 0L
+            if (obj.has("fileCount") && obj.has("fileLength")) {
+                fileCount = obj.getLong("fileCount")
+                fileLength = obj.getLong("fileLength")
+            }
+            Log.d("tag", "Files to download: $fileCount, Size: $fileLength")
+        }
+    }
+}
+```
+
+## Self-Capture/Playback/File Conversion
+
+When capturing and playing simultaneously (self-capture/playback) or converting a file, the data length passed when calling `transform` is calculated as follows:
+
+```kotlin
+val bufferSize = outputSampleRate / 100 * 32
+```
+
+Self-Capture/Playback Example Code:
+
+```kotlin
+var audioRecord: AudioRecord // Recording
+var audioTrack: AudioTrack // Playback
+
+// When capturing:
+val buffer = ByteArray(bufferSize)
+val result = audioRecord.read(buffer, 0, buffer.size)
+
+// When playing:
+if (result != null && result.isNotEmpty()) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        audioTrack!!.write(
+            result,
+            0,
+            result.size,
+            AudioTrack.WRITE_BLOCKING
+        )
+    } else {
+        audioTrack!!.write(result, 0, result.size)
+    }
+}
+```
+
+File Conversion Example Code:
+
+```kotlin
+val fin: FileInputStream = FileInputStream(inPath) // Input File
+var fot: FileOutputStream = FileOutputStream(outPath) // Output File
+val buffer = ByteArray(bufferSize)
+val result = fin.read(buffer)
+val transform = engine?.transform(buffer)
+if (transform != null && transform.isNotEmpty()) {
+    fot.write(transform)
+}
+```
+
+**Note:** The file's sample rate must be the same as the sample rate set for the engine, and the file must contain PCM formatted data. Since the data length inside the file cannot be guaranteed to be an integer multiple of one transformation frame, when converting multiple files sequentially, data missing from the end of the first file needs to be supplemented with data from the beginning of the second file to ensure audio continuity.
+
+For example: With a sample rate of 48000, if `bufferSize = 15360` and the first file length is 20000, after taking the first frame of data, 4640 bytes remain. For the next transformation, you need to take 10720 bytes of data from the beginning of the second file and combine it with the remaining 4640 bytes from the first file to form 15360 bytes of data for transformation, and so on.
