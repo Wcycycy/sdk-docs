@@ -172,3 +172,116 @@ Sets the VAD strategy.
 | action | VCAction Enum | Event type. |
 | code | VCEngineCode Enum | Event result. |
 | msg | String | Event message, may be null. |
+
+## VCAction
+| Enum Value | Description |
+| :--- | :--- |
+| SET_VOICE | Set voice. |
+| LOGIN | Login. |
+| PREPARE | Prepare engine. |
+| INITIALIZE | Initialize engine. |
+| CHECK_FILE | Check file. |
+| PRO_CALIBRATION | Pro mode calibration. |
+
+## VCEngineCode
+| Enum Value | Description |
+| :--- | :--- |
+| SUCCESS | Success. |
+| SERVER_ERROR | Server error. |
+| AUTH_ERROR | Authentication failed. |
+
+## VCEngineStatus
+| Enum Value | Description |
+| :--- | :--- |
+| IDLE | Instance successfully created. |
+| PREPARING | Engine resources are being prepared. |
+| PREPARED | Engine resources are ready. |
+| INITIALIZED | Engine initialization succeeded. |
+| STARTED | Voice transformation started. |
+| STOPPED | Voice transformation stopped. |
+| RELEASED | Engine has been released. |
+| ERROR | Engine error. |
+| CHECKING | Resource files are being checked. |
+| CALIBRATING | Auto calibration is in progress. |
+
+## VCVoice
+| Member Variable | Description |
+| :--- | :--- |
+| id | Voice ID. |
+| name | Voice name. |
+| cover | Voice icon/cover. |
+
+## VCMode (2.x)
+| Enum Value | Description |
+| :--- | :--- |
+| NORMAL | Normal mode. |
+| Pro | Pro mode. |
+
+## IVadStrategy
+
+The Silent Detection Strategy Interface. Developers can implement this interface and pass it in when building the engine.
+
+The following example uses the [android-vad GitHub repository](https://github.com/gkonovalov/android-vad) as a reference:
+
+```kotlin
+package com.gerzz.dubbing
+
+import com.gerzz.dubbing.sdk.IVadStrategy
+import com.konovalov.vad.webrtc.Vad
+import com.konovalov.vad.webrtc.VadWebRTC
+import com.konovalov.vad.webrtc.config.FrameSize
+import com.konovalov.vad.webrtc.config.Mode
+import com.konovalov.vad.webrtc.config.SampleRate
+
+class MyVad : IVadStrategy {
+    private var mVad: VadWebRTC? = null
+    override fun initVad(sampleRate: Int) {
+        var vadSampleRate: SampleRate? = null
+        var vadFrameSize: FrameSize? = null
+
+        if (sampleRate == 48000) {
+            vadSampleRate = SampleRate.SAMPLE_RATE_48K
+            vadFrameSize = FrameSize.FRAME_SIZE_960
+        } else if (sampleRate == 16000) {
+            vadSampleRate = SampleRate.SAMPLE_RATE_16K
+            vadFrameSize = FrameSize.FRAME_SIZE_320
+        }
+        if (vadSampleRate != null && vadFrameSize != null) {
+            mVad = Vad.builder()
+                .setSampleRate(vadSampleRate)
+                .setFrameSize(vadFrameSize)
+                .setMode(Mode.LOW_BITRATE)
+                .setSilenceDurationMs(160)
+                .setSpeechDurationMs(160)
+                .build()
+        }
+
+    }
+
+    override fun release() {
+        mVad?.close()
+        mVad = null
+    }
+
+    override fun isSpeech(data: ByteArray): Boolean {
+        mVad?.let { vad ->
+            val frameSize = vad.frameSize.value * 2
+            val count = data.size / frameSize
+            var isSpeech = false
+            for (i in 0 until count) {
+                val buf = data.copyOfRange(
+                    i * frameSize,
+                    (i + 1) * frameSize
+                )
+                val speech = vad.isSpeech(buf)
+                if (speech) {
+                    isSpeech = true
+                    break
+                }
+            }
+            return isSpeech
+        }
+        return false
+    }
+}
+```
