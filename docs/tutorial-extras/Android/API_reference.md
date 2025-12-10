@@ -100,3 +100,75 @@ Synchronously converts the audio data. Input: `originData: ByteArray`. Returns: 
 ### getDelayMillis(): Int
 Gets the processing delay (latency) in milliseconds. Returns: `Int`.
 
+## VCEngine Default Values Description
+
+| Parameter Name | Parameter Type | Default Value | Description |
+| :--- | :--- | :--- | :--- |
+| callback | VCEngineCallback | null | Engine event callback |
+| inputSampleRate | int | 16000 | Input Sample Rate |
+| outputSampleRate | int | 16000 | Output Sample Rate |
+| samplesPerCall | int | | Sample size for each audio data callback. Default calculated by the engine: samplesPerCall = outputSampleRate / 100 * 16 * 2. |
+| mToken | String | null | Authentication token, obtained by the developer. |
+| debugHelper | TransformDebugHelper | null | Calculation utility class, can statistical performance data during voice transformation. Only takes effect when transformDebug is true. |
+| muteWhenFail | boolean | true | Whether to mute when voice transformation fails. |
+| debug | boolean | false | Whether to print engine operation Log |
+| transformDebug | boolean | false | Whether to print engine voice transformation process Log. Enabling this will greatly increase the Log output volume. |
+
+## VCEngine.Builder
+
+### Builder(context: Context)
+Constructor.
+
+### log() (Optional)
+Enables Log printing, which only prints process information during engine operation.
+
+### transformLog() (Optional)
+Enables voice transformation Log. Voice transformation is a high-frequency operation, and enabling this will cause the Log information to refresh quickly.
+
+### transformLog(TransformDebugHelper) (Optional)
+Effect is the same as transformLog(), and the helper will record various time data of the voice transformation.
+
+### token(tokenStr) (Required in 1.x version)
+Authentication token, issued by the server. Required in 1.x version, optional in 2.x.
+
+### inputSampleRate(sampleRate) (Optional)
+Input Sample Rate. The default value is 16000. Common optional values include 16000, 24000, and 48000.
+
+### outputSampleRate(sampleRate) (Optional)
+Output Sample Rate. The default value is 16000. Common optional values include 16000, 24000, and 48000. The input/output sample rates are generally the same.
+
+### engineCallback(callback) (Optional)
+Engine Callback.
+
+| Parameter Name | Parameter Type | Description |
+| :--- | :--- | :--- |
+| callback | VCEngineCallback Interface | /** Downloads progress * @param percent Current download file progress, integer from 0-100, 100 means current file download is complete * @param index The index of the current file being downloaded, starting from 1 * @param count The total number of files to be downloaded */ fun onDownload(percent: Int , index: Int, count: Int) |
+| | | /** Event change * @param action Event * @param code Event result * @param msg Message */ fun onActionResult(action: VCAction, code: VCEngineCode, msg: String? = null ) |
+
+### build()
+Builds the VCEngine instance.
+
+### muteWhenFail(muteWhenFail: Boolean)
+Whether to mute when voice transformation fails.
+
+### samplesPerCall(samplesPerCall: Int)
+Sample size for each audio data callback.
+
+### vadStrategy(strategy: IVadStrategy)
+Sets the VAD strategy.
+
+## VCEngineCallback
+
+### onDownload(percent: Int, index: Int, count: Int)
+| Parameter Name | Parameter Type | Description |
+| :--- | :--- | :--- |
+| percent | int | Current file download progress, ranging from 0 to 100. 100 means 100%. |
+| index | int | The index of the current file being downloaded, starting from 1. |
+| count | int | The total number of files to be downloaded. |
+
+### onActionResult(action: VCAction, code: VCEngineCode, msg: String?)
+| Parameter Name | Parameter Type | Description |
+| :--- | :--- | :--- |
+| action | VCAction Enum | Event type. |
+| code | VCEngineCode Enum | Event result. |
+| msg | String | Event message, may be null. |
