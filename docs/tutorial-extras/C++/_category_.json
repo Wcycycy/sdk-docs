@@ -1,8 +1,8 @@
 {
-  "label": "C++",
+  "label": "Desktop",
   "position": 3,
   "link": {
     "type": "generated-index",
-    "title": "C++ SDK guide"
+    "title": "Desktop SDK guide"
   }
 }

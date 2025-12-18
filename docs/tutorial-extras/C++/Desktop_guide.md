@@ -1,6 +1,8 @@
 ---
 sidebar_position: 2
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Quick Start
 
@@ -28,9 +30,23 @@ This section outlines the steps required to initialize the engine and enable dir
 
 #### 1. Obtain Authentication Token (Sign String)
 First, you must acquire an authentication token (sign string) from your server.
-```cpp
-std::string signStrs = "access_key=\"xxxxxx\",timestamp=\"xxxxxx\",nonce=\"xxxxxx\",id=\"xxxxxx\",signature=\"xxxxxx\"";
-```
+
+<Tabs>
+  <TabItem value="cpp" label="C++">
+
+    ```cpp
+    std::string signStrs = "access_key=\"xxxxxx\",timestamp=\"xxxxxx\",nonce=\"xxxxxx\",id=\"xxxxxx\",signature=\"xxxxxx\"";
+    ```
+
+  </TabItem>
+  <TabItem value="csharp" label="C#">
+
+    ```csharp
+    g_akId = "access_key=\"xxxxxx\",timestamp=\"xxxxxx\",nonce=\"xxxxxx\",id=\"xxxxxx\",signature=\"xxxxxx\"";
+    ```
+
+  </TabItem>
+</Tabs>
 
 #### 2. Initialize Engine Data Resources
 Engine initialization is a crucial step that includes authentication, resource downloading, and resource loading. Due to these processes, this step can be time-consuming. **It is highly recommended to execute this process in a new thread.**
@@ -39,45 +55,121 @@ The parameters `downloadCallback`, `completeCallback`, and `errorCallback` are c
 
 > **Note on License Mode:** If `config._netwodrkReqKey` is set to empty (`NULL` or `""`), the SDK will use the **Local License Mode** for verification. In this mode, the License, model, and voice files **must be placed** in the directory specified by `config._resourcesPath` beforehand. If `config._resourcesPath` is not set, the current working directory will be used.
 
-```cpp
-EngineConfig config;
-config._netwodrkReqKey = signStrs.c_str();
-config._iDownload = down; // Assume 'down' is your download interface implementation
-int loginOK = client->initEngineData(config);
-```
+<Tabs>
+  <TabItem value="cpp" label="C++">
+
+    ```cpp
+    EngineConfig config;
+    config._netwodrkReqKey = signStrs.c_str();
+    config._iDownload = down; // Assume 'down' is your download interface implementation
+    int loginOK = client->initEngineData(config);
+    ```
+
+  </TabItem>
+  <TabItem value="csharp" label="C#">
+
+    ```csharp
+    vCEngine = new VCEngine.Builder()
+    .engineLog()
+    .transformLog()
+    .engineToken(g_akId)
+    .engineInputSampleRate(48000)
+    .engineOutputSampleRate(48000)
+    .engineCallback(this)
+    .build();
+    ```
+
+  </TabItem>
+</Tabs>
 
 #### 3. Retrieve Voice List
 After the engine has been successfully initialized and prepared, you can query for the available voice presets list.
 
-```cpp
-// Get voice list
-std::string voices = client->getVoiceList();
-printf(voices.c_str());
-```
+<Tabs>
+  <TabItem value="cpp" label="C++">
+
+    ```cpp
+    // Get voice list
+    std::string voices = client->getVoiceList();
+    printf(voices.c_str());
+    ```
+
+  </TabItem>
+  <TabItem value="csharp" label="C#">
+
+    ```csharp
+    var list = vCEngine.getVoiceList();
+    ```
+
+  </TabItem>
+</Tabs>
 
 #### 4. Set Voice Preset
 
 Use the returned ID from the voice list to set the desired voice transformation preset.
 
-```cpp
-int speakerOk = client->setVoice(193); // 193 is an example voice ID
-```
+<Tabs>
+  <TabItem value="cpp" label="C++">
+
+    ```cpp
+    int speakerOk = client->setVoice(193); // 193 is an example voice ID
+    ```
+
+  </TabItem>
+  <TabItem value="csharp" label="C#">
+
+    ```csharp
+    VCVoice vCVoice = new VCVoice(Convert.ToInt32(frmVoice.comboBox1.SelectedValue), frmVoice.comboBox1.SelectedText, "", "", frmVoice.comboBox1.SelectedIndex);
+    speakId = vCVoice.id;
+    vCEngine.setPass(true);
+    vCEngine.setVoice(vCVoice.id);
+    ```
+
+  </TabItem>
+</Tabs>
 
 #### 5. Start Voice Transformation
 
 This step executes the voice transformation on the raw audio data you actively push to the SDK.
 
-```cpp
-nret = client->transform(data, len); // 'data' is the audio buffer, 'len' is the data length
-```
+<Tabs>
+  <TabItem value="cpp" label="C++">
+
+    ```cpp
+    nret = client->transform(data, len); // 'data' is the audio buffer, 'len' is the data length
+    ```
+
+  </TabItem>
+  <TabItem value="csharp" label="C#">
+
+    ```csharp
+    byte[] bytes = new byte[segWriteSize];
+    byte[] outVoice = vCEngine.transform(bytes);
+    ```
+
+  </TabItem>
+</Tabs>
 
 #### 6. Enable Voice Transformation for Self-Collection
 
 Call this function to enable the voice transformation for the audio captured by the engine's internal self-collection mechanism (if applicable).
 
-```cpp
-client->setPass(true);
-```
+<Tabs>
+  <TabItem value="cpp" label="C++">
+
+    ```cpp
+    client->setPass(true);
+    ```
+
+  </TabItem>
+  <TabItem value="csharp" label="C#">
+
+    ```csharp
+    vCEngine.setPass(true);
+    ```
+
+  </TabItem>
+</Tabs>
 
 ### Using Dubbing Audio Device Management and Collection
 #### 1. Obtain Authentication Token (Sign String)
