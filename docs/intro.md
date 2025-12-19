@@ -17,5 +17,5 @@ The **Real-time Voice Conversion SDK** is a proprietary low-latency AI timbre-co
 ## General Specs
 
 - **Supported Languages**: Dubbing AI Voice Changer supports 40+ languages and dialects, along with highly emotional vocal expressions such as screaming, sighing, singing, mumbling, and whispering.
-- **Supported Platforms**: Windows, MacOS, iOS, Android
+- **Supported Platforms**: Desktop, iOS, Android
 - **Performance Metrics**: Designed for low latency (≈500 ms) and high emotional fidelity, ensuring real-time performance without degrading voice quality.
