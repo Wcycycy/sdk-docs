@@ -46,6 +46,13 @@ First, you must acquire an authentication token (sign string) from your server.
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    signStrs = b"access_key=\"xxxxxx\",timestamp=\"xxxxxx\",nonce=\"xxxxxx\",id=\"xxxxxx\",signature=\"xxxxxx\""
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 2. Initialize Engine Data Resources
@@ -80,6 +87,13 @@ The parameters `downloadCallback`, `completeCallback`, and `errorCallback` are c
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    result = dubbing_sdk_python.dubbing_sdk_python.initEngineData(NULL, 48000, 48000, True, signStrs, downloadCallback, completeCallback, errorCallback) 
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 3. Retrieve Voice List
@@ -99,6 +113,14 @@ After the engine has been successfully initialized and prepared, you can query f
 
     ```csharp
     var list = vCEngine.getVoiceList();
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    voices = dubbing_sdk_python.dubbing_sdk_python.getVoiceList()
+    print(voices)
     ```
 
   </TabItem>
@@ -126,6 +148,13 @@ Use the returned ID from the voice list to set the desired voice transformation 
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    result = dubbing_sdk_python.dubbing_sdk_python.setSpeaker(193)
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 5. Start Voice Transformation
@@ -145,6 +174,13 @@ This step executes the voice transformation on the raw audio data you actively p
     ```csharp
     byte[] bytes = new byte[segWriteSize];
     byte[] outVoice = vCEngine.transform(bytes);
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.transform(short_arr, len(short_arr))
     ```
 
   </TabItem>
@@ -191,6 +227,13 @@ First, you must acquire an authentication token (sign string) from your server.
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    signStrs = b"access_key=\"xxxxxx\",timestamp=\"xxxxxx\",nonce=\"xxxxxx\",id=\"xxxxxx\",signature=\"xxxxxx\""
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 2. Initialize Engine Data Resources
@@ -223,61 +266,103 @@ Engine initialization is a crucial step that includes authentication, resource d
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    result = dubbing_sdk_python.dubbing_sdk_python.initEngineData(NULL, 48000, 48000, False, signStrs, downloadCallback, completeCallback, errorCallback)
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 3. Read Device Information and Get Device Indices
 
 After successful authentication, read the device information to obtain the indices of the devices required for startup, including the virtual audio device.
 
-```cpp
-int captureDevId = 0;
-int renderDevId = 0;
-int virtualCaptureDevId = 1;
-int virtualRenderDevId = 1;
-wchar_t captureDevName[100][1024];
-IDubbingDeviceManager* deviceMgr = client->getDubbingDeviceManager();
 
-if (deviceMgr == nullptr)
-{
-    return -1;
-}
+<Tabs>
+  <TabItem value="cpp" label="C++">
 
-// Get Capture Devices (Microphones)
-int captureDevCount = deviceMgr->getAudioDevList(captureDevName, true);
-wchar_t myDevName[1024] = L"Dubbing Virtual Device";
+    ```cpp
+    int captureDevId = 0;
+    int renderDevId = 0;
+    int virtualCaptureDevId = 1;
+    int virtualRenderDevId = 1;
+    wchar_t captureDevName[100][1024];
+    IDubbingDeviceManager* deviceMgr = client->getDubbingDeviceManager();
 
-for (int i = 0; i < captureDevCount; i++)
-{
-    if (StrStrW(captureDevName[i], myDevName) != NULL)
+    if (deviceMgr == nullptr)
     {
-        virtualCaptureDevId = i;
-        if (virtualCaptureDevId == captureDevId)
-        {
-            captureDevId++;
-        }
-        break;
+        return -1;
     }
-}
 
-// Get Render Devices (Speakers)
-wchar_t renderDevName[100][1024];
-int renderDevCount = deviceMgr->getAudioDevList(renderDevName, false);
+    // Get Capture Devices (Microphones)
+    int captureDevCount = deviceMgr->getAudioDevList(captureDevName, true);
+    wchar_t myDevName[1024] = L"Dubbing Virtual Device";
 
-for (int i = 0; i < renderDevCount; i++)
-{
-    if (StrStrW(renderDevName[i], myDevName) != NULL)
+    for (int i = 0; i < captureDevCount; i++)
     {
-        virtualRenderDevId = i;
-        if (virtualRenderDevId == renderDevId)
+        if (StrStrW(captureDevName[i], myDevName) != NULL)
         {
-            renderDevId++;
+            virtualCaptureDevId = i;
+            if (virtualCaptureDevId == captureDevId)
+            {
+                captureDevId++;
+            }
+            break;
         }
-        break;
     }
-}
-```
 
+    // Get Render Devices (Speakers)
+    wchar_t renderDevName[100][1024];
+    int renderDevCount = deviceMgr->getAudioDevList(renderDevName, false);
 
+    for (int i = 0; i < renderDevCount; i++)
+    {
+        if (StrStrW(renderDevName[i], myDevName) != NULL)
+        {
+            virtualRenderDevId = i;
+            if (virtualRenderDevId == renderDevId)
+            {
+                renderDevId++;
+            }
+            break;
+        }
+    }
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    captureDevId = 0;
+    renderDevId = 0;
+    virtualCaptureDevId = 1;
+    virtualRenderDevId = 1;
+    # Read the capture device list
+    captureDevNameList = dubbing_sdk_python.dubbing_sdk_python.getAudioDevList(True)
+    print("testDubbingDeviceEngine captureDevNameList:", captureDevNameList)
+    jsondata = json.loads(captureDevNameList)
+    for i in range(len(jsondata)):
+        if jsondata[i] in "Dubbing Virtual Device":
+            virtualCaptureDevId = i;
+            if virtualCaptureDevId == captureDevId:
+                captureDevId += 1
+            break
+    # Read the render device list
+    renderDevNameList = dubbing_sdk_python.dubbing_sdk_python.getAudioDevList(False)
+    print("testDubbingDeviceEngine renderDevNameList:", renderDevNameList)
+    jsondata = json.loads(renderDevNameList)
+    for i in range(len(jsondata)):
+        if jsondata[i] in "Dubbing Virtual Device":
+            virtualRenderDevId = i;
+            if virtualRenderDevId == renderDevId:
+                renderDevId += 1
+            break
+    ```
+
+  </TabItem>
+</Tabs>
 
 #### 4. Start Devices
 
@@ -300,6 +385,13 @@ Start the devices to begin microphone data collection, perform voice transformat
 
     ```csharp
     int nRet = vcDeviceEngine.startDevice();
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    nRet = dubbing_sdk_python.dubbing_sdk_python.startDevice(captureDevId, renderDevId, virtualCaptureDevId, virtualRenderDevId)ack, errorCallback)
     ```
 
   </TabItem>
@@ -349,6 +441,16 @@ Retrieve the list of audio device names, including the microphone (capture) devi
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    captureDevNameList = dubbing_sdk_python.dubbing_sdk_python.getAudioDevList(True);
+    print("testDubbingDeviceEngine captureDevNameList:", captureDevNameList)
+    renderDevNameList = dubbing_sdk_python.dubbing_sdk_python.getAudioDevList(False);
+    print("testDubbingDeviceEngine renderDevNameList:", renderDevNameList)
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 6. Start Dumping Audio Data
@@ -372,6 +474,13 @@ Start dumping audio data from the microphone, after voice transformation, and fr
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.startDumpRecord(b"./dumpPcm")
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 7. Stop Dumping Audio Data
@@ -390,6 +499,13 @@ Stop dumping the audio data from the microphone, processed audio, and speaker.
 
     ```csharp
     vcDeviceEngine.stopDumpRecord();
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.stopDumpRecord()
     ```
 
   </TabItem>
@@ -419,6 +535,14 @@ Set the volume level for the audio capture device (microphone). The value should
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    value = input("Please enter decimals from 0 to 1: ") 
+    dubbing_sdk_python.dubbing_sdk_python.setAudioCaptureVolume(float(value))
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 9. Set Speaker Volume
@@ -442,6 +566,14 @@ Set the volume level for the audio render device (speaker). The value should be 
     float value = (float)this.numericRenderVolume.Value;
     float fValue = value / 100.0f;
     vcDeviceEngine.setAudioRenderVolume(_renderDevId, fValue);
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    value = input("Please enter decimals from 0 to 1: ") 
+    dubbing_sdk_python.dubbing_sdk_python.setAudioRenderVolume(renderDevId, float(value))
     ```
 
   </TabItem>
@@ -471,6 +603,14 @@ Retrieve the current volume level of the audio capture device (microphone). The 
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    value = dubbing_sdk_python.dubbing_sdk_python.getAudioCaptureVolume()
+    print("testDubbingDeviceEngine getAudioCaptureVolume:", value)
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 11. Get Speaker Volume
@@ -494,6 +634,14 @@ Retrieve the current volume level of the audio render device (speaker). The retu
     fValue = vcDeviceEngine.getAudioRenderVolume();
     int value = (int)Math.Round(fValue*100, 2);
     this.numericRenderVolume.Value = value;
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    value = dubbing_sdk_python.dubbing_sdk_python.getAudioRenderVolume(renderDevId)
+    print("testDubbingDeviceEngine getAudioRenderVolume:", value)
     ```
 
   </TabItem>
@@ -523,6 +671,14 @@ Retrieve the current peak audio level from the microphone (capture device).
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    value = dubbing_sdk_python.dubbing_sdk_python.getAudioCapturePeak()
+    print("testDubbingDeviceEngine getAudioCapturePeak:", value)
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 13. Get Speaker Peak Level
@@ -546,6 +702,14 @@ Retrieve the current peak audio level from the speaker (render device).
     fValue = vcDeviceEngine.getAudioRenderPeak();
     int value = (int)(fValue*10000);
     this.numericRenderVolume.Value = value;
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    value = dubbing_sdk_python.dubbing_sdk_python.getAudioRenderPeak(renderDevId)
+    print("testDubbingDeviceEngine getAudioRenderPeak:", value)
     ```
 
   </TabItem>
@@ -575,6 +739,14 @@ Set the volume amplification level (gain) for the microphone. The value should b
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    value = input("Please enter decimals from 0 to 2: ") 
+    dubbing_sdk_python.dubbing_sdk_python.setAudioCaptureVolumeLevel(float(value))
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 15. Set Speaker Volume Level (Gain)
@@ -598,6 +770,14 @@ Set the volume amplification level (gain) for the speaker (render device). The v
     float value = (float)this.numericRenderVolume.Value;
     float fValue = value / 100.0f;
     vcDeviceEngine.setAudioRenderVolumeLevel(fValue);
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    value = input("Please enter decimals from 0 to 2: ") 
+    dubbing_sdk_python.dubbing_sdk_python.setAudioRenderVolumeLevel(float(value))
     ```
 
   </TabItem>
@@ -627,6 +807,14 @@ Retrieve the current volume level of the virtual sound card's microphone output.
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    value = dubbing_sdk_python.dubbing_sdk_python.getAudioVirtualCaptureVolume()
+    print("testDubbingDeviceEngine getAudioVirtualCaptureVolume:", value)
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 17. Set Microphone Mute
@@ -647,6 +835,13 @@ Toggle the mute state for the microphone (capture device).
 
     ```csharp
     vcDeviceEngine.setCaptureMute(this.checkBoxSetCaptureMute.Checked);
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.setCaptureMute(True)
     ```
 
   </TabItem>
@@ -673,6 +868,13 @@ Toggle the mute state for the speaker (render device).
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.setRenderMute(True)
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 19. Start Recording Microphone Audio
@@ -695,6 +897,13 @@ Start recording the raw audio from the microphone to a file. The output file is 
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.startCaptureRecord(b"./dumpPcm/recordPcm.pcm")
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 20. Stop Recording Microphone Audio
@@ -713,6 +922,13 @@ Stop recording the microphone audio.
 
     ```csharp
     vcDeviceEngine.stopCaptureRecord();
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.stopCaptureRecord()
     ```
 
   </TabItem>
@@ -740,6 +956,13 @@ Start playing back the recorded audio file through the speaker.
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.startPlayRecordFile(b"./dumpPcm/recordPcm.pcm")
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 22. Stop Playing Recorded File
@@ -758,6 +981,13 @@ Stop playing the recorded audio file.
 
     ```csharp
     vcDeviceEngine.stopPlayRecordFile();
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.stopPlayRecordFile()
     ```
 
   </TabItem>
@@ -782,6 +1012,13 @@ Clear the cached data for both the speaker and microphone.
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.flush()
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 24. Prevent Virtual Speaker from Being Default
@@ -800,6 +1037,13 @@ Set the Dubbing Virtual Sound Card Speaker **not** to be the system's default re
 
     ```csharp
     vcDeviceEngine.setDubbingNoDefaultRenderDev();
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    dubbing_sdk_python.dubbing_sdk_python.setDubbingNoDefaultRenderDev()
     ```
 
   </TabItem>
@@ -829,6 +1073,14 @@ Retrieve the name of the microphone device that was the system's default *before
     ```
 
   </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    davName = dubbing_sdk_python.dubbing_sdk_python.getPreDefaultCaptureDevName()
+    print("testDubbingDeviceEngine getPreDefaultCaptureDevName:", davName)
+    ```
+
+  </TabItem>
 </Tabs>
 
 #### 26. Get Current Default Render Device Name (Speaker)
@@ -853,6 +1105,14 @@ Retrieve the name of the current default **render device (speaker)**.
     ```csharp
     string strMessage = "Default Speaker Name: " + vcDeviceEngine.getDefaultRenderDevName();
     MessageBox.Show(strMessage);
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    davName = dubbing_sdk_python.dubbing_sdk_python.getDefaultRenderDevName()
+    print("testDubbingDeviceEngine getDefaultRenderDevName:", davName)
     ```
 
   </TabItem>
@@ -916,6 +1176,21 @@ To handle these events, you must implement the `IDubbingDownload` interface's ca
             this.lblStatus.Text = "An error occurred during resource download";
         }));
     }
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    # Define our callback functions
+    def downloadCallback(percent, index, count):
+        print("download count: ", count, " index: ", index, " percent: ", percent)
+
+    def completeCallback():
+        print("download complete")
+
+    def errorCallback():
+        print("download error")
     ```
 
   </TabItem>
