@@ -124,7 +124,7 @@ import java.util.Base64;
 
 public class DubbingTokenDemo {
     public static void main(String[] args) {
-        long time = timestamp();
+        long time = getTimestamp();
         String nonce = buildNonce();
         String userId = "518";
         String data = buildData(time, nonce, userId);
@@ -148,7 +148,7 @@ public class DubbingTokenDemo {
         return new String(nonceChars);
     }
 
-    public static long timestamp() {
+    public static long getTimestamp() {
         return System.currentTimeMillis() / 1000;
     }
 
@@ -163,9 +163,9 @@ public class DubbingTokenDemo {
             mac.init(secret);
             return Base64.getUrlEncoder().encodeToString(mac.doFinal(data.getBytes()));
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("当前Java环境不支持HMAC_SHA1", e);
+            throw new RuntimeException("HMAC_SHA1 is not supported in the current Java environment", e);
         } catch (InvalidKeyException e) {
-            throw new RuntimeException("无效的私钥", e);
+            throw new RuntimeException("Invalid secret key", e);
         }
     }
 
