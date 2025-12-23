@@ -11,6 +11,12 @@ This section describes how to generate the signature required by the Dubbing SDK
 
 ## 1. Preparation: Keys (accessKey / secretKey)
 
+:::caution
+
+Please [contact us](https://app.youform.com/forms/pgax91mz) to obtain the keys required to integrate and launch your project.
+
+:::
+
 The Dubbing SDK uses paired keys:
 
 - **accessKey** — Works like an account identifier. It *will* be transmitted.

@@ -117,6 +117,12 @@ const config = {
         darkTheme: prismThemes.dracula,
         additionalLanguages: ['csharp'],
       },
+      docs: {
+      sidebar: {
+        hideable: true,
+        autoCollapseCategories: false, 
+      },
+      },
     }),
 };
 
