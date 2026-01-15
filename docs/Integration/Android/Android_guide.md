@@ -40,7 +40,7 @@ implementation fileTree(include: [ '*.jar' , '*.aar' ], dir: 'libs' )
 val engine = DubbingEngine.EngineConfig(this)
     .enableLog() // Print Log
     .enableTransformLog() // Print Voice Changer Log
-    .token("xxx") // 2.x can skip this method to use license authentication
+    .token("xxx")
     .sampleRate(mSampleRate) // Input sample rate, e.g., 48000
     .engineCallback(object : DubbingEngineCallback {
         // Resource download progress

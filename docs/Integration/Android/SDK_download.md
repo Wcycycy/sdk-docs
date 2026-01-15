@@ -1,5 +1,5 @@
 ---
-draft: true
+draft: false
 sidebar_position: 1
 ---
 
@@ -7,6 +7,6 @@ sidebar_position: 1
 
 Please download the SDK below. We recommend downloading the latest version of the SDK to access the most complete features.
 
-| Version | Description | Download Link |
-| :---: | :--- | :--- |
-| v3.0.6 (Only supports arm64-v8a)| Added VAD | [Download ZIP](https://your-domain.com/downloads/sdk_1.2.0.zip) |
+| Version | Description | SDK Link | Demo App |
+| :---: | :--- | :--- | :--- |
+| **v3.0.0** | Latest version | [Download SDK](https://evi.dubbingai.io/sdks/dubbing-sdk-android-v3.0.0.aar) | [Download APK](https://evi.dubbingai.io/demos/dubbing-sdk-android-v3.0.0-demo.zip) |
