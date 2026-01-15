@@ -36,7 +36,7 @@ Gets the current status of the engine.
 ### setVoice(voiceId: Int)
 When calling this method, it first checks if the model required for the voice tone has been loaded. If not, it loads the model into memory.
 
-Sets the voice. This operation is asynchronous, and the result is returned in the `DubbingEngineCallback` callback.
+Sets the voice. This operation is asynchronous, and the result is returned in the `DubbingCallback` callback.
 
 **Note:** It can only be set successfully after the engine is prepared. It can be set whether voice conversion is currently active or not. For example, if voice conversion is active, the sound will immediately change to the new voice tone upon successful setting.
 
@@ -96,7 +96,7 @@ Gets the processing delay (latency) in milliseconds. Returns: `Int`.
 
 | Parameter Name | Parameter Type | Default Value | Description |
 | :--- | :--- | :--- | :--- |
-| callback | DubbingEngineCallback | null | Engine event callback |
+| callback | DubbingCallback | null | Engine event callback |
 | sampleRate | int | 16000 | Input Sample Rate |
 | samplesPerCall | int | | Sample size for each audio data callback. Default calculated by the engine: samplesPerCall = outputSampleRate / 100 * 16 * 2. |
 | mToken | String | null | Authentication token, obtained by the developer. |
@@ -130,7 +130,7 @@ Engine Callback.
 
 | Parameter Name | Parameter Type | Description |
 | :--- | :--- | :--- |
-| callback | DubbingEngineCallback Interface | /** Downloads progress * @param percent Current download file progress, integer from 0-100, 100 means current file download is complete * @param index The index of the current file being downloaded, starting from 1 * @param count The total number of files to be downloaded */ fun onDownload(percent: Int , index: Int, count: Int) |
+| callback | DubbingCallback Interface | /** Downloads progress * @param percent Current download file progress, integer from 0-100, 100 means current file download is complete * @param index The index of the current file being downloaded, starting from 1 * @param count The total number of files to be downloaded */ fun onDownload(percent: Int , index: Int, count: Int) |
 | | | /** Event change * @param action Event * @param code Event result * @param msg Message */ fun onActionResult(action: DubbingAction, code: DubbingEngineCode, msg: String? = null ) |
 
 ### buildEngine
@@ -147,7 +147,7 @@ val bytes = 2
 val channel = 1
 samplesPerCall = 16000 / 100 * bytes * channel
 
-## DubbingEngineCallback
+## DubbingCallback
 
 ### onDownload(percent: Int, index: Int, count: Int)
 | Parameter Name | Parameter Type | Description |

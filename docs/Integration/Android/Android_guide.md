@@ -42,7 +42,7 @@ val engine = DubbingEngine.EngineConfig(this)
     .enableTransformLog() // Print Voice Changer Log
     .token("xxx")
     .sampleRate(mSampleRate) // Input sample rate, e.g., 48000
-    .engineCallback(object : DubbingEngineCallback {
+    .engineCallback(object : DubbingCallback {
         // Resource download progress
         override fun onDownload(percent: Int, index: Int, count: Int) {
             val str = "Downloading resource: $index / $count $percent %"
@@ -127,7 +127,7 @@ If you only need to **check the required resource files**, you can call the foll
 engine.checkResources()
 ```
 
-Then, handle the result in the `DubbingEngineCallback`'s `onActionResult` callback. See the example code below.
+Then, handle the result in the `DubbingCallback`'s `onActionResult` callback. See the example code below.
 
 **Note:** If files need to be downloaded, the `msg` parameter will return a **JSON string**, for example:
 `{"fileCount":0,"fileLength":100000}`.
