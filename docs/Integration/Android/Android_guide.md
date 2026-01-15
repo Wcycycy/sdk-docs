@@ -6,7 +6,7 @@ sidebar_position: 2
 
 :::caution
 
-The SDK supports arm64-v8a and armeabi-v7a.
+The SDK supports arm64-v8a.
 
 :::
 
@@ -37,26 +37,21 @@ implementation fileTree(include: [ '*.jar' , '*.aar' ], dir: 'libs' )
 1. **Create the Engine Instance.** This step only creates the instance and does **not** load the necessary voice changer resources.
 
 ```kotlin
-val engine = VCEngine.Builder(this)
-    .log() // Print Log
-    .transformLog() // Print Voice Changer Log
+val engine = DubbingEngine.EngineConfig(this)
+    .enableLog() // Print Log
+    .enableTransformLog() // Print Voice Changer Log
     .token("xxx") // 2.x can skip this method to use license authentication
-    .inputSampleRate(mSampleRate) // Input sample rate, e.g., 48000
-    .outputSampleRate(mSampleRate) // Output sample rate, e.g., 48000
-    .thirdRTC(ThirdRTC.TENCENT) // Integrated third-party RTC, optional.
-    .engineCallback(object : VCEngineCallback {
+    .sampleRate(mSampleRate) // Input sample rate, e.g., 48000
+    .engineCallback(object : DubbingEngineCallback {
         // Resource download progress
         override fun onDownload(percent: Int, index: Int, count: Int) {
             val str = "Downloading resource: $index / $count $percent %"
         }
 
         // Event callback
-        override fun onActionResult(action: VCAction, code: VCEngineCode, msg: String?) {
-            if (action == VCAction.PREPARE && code == VCEngineCode.SUCCESS) {
-                engine.initEngine()
-            }
+        override fun onActionResult(action: DubbingAction, code: DubbingEngineCode, msg: String?) {
             Toast.makeText(
-                this@TRtcActivity,
+                context,
                 "${action.name} : $code ${msg ?: ""}",
                 Toast.LENGTH_SHORT
             ).show()
@@ -78,24 +73,18 @@ engine.prepare()
 val success = action == VCAction.PREPARE && code == VCEngineCode.SUCCESS
 ```
 
-3.2. **Initialize the engine** after the engine resources are successfully prepared. The initialization result will also **call back** to the `onActionResult` in step 1:
-
-```kotlin
-engine.initEngine()
-```
-
-**Note:** The engine's `prepare()` and `initEngine()` are asynchronous, requiring authentication and checking for necessary voice changer resources. The first time the engine is initialized in the **1.x version**, it will take a relatively long time. The **2.x version** loads the model into memory the first time a voice is set, which will also take a relatively long time.
+**Note:** The engine's `prepare()` is asynchronous, requiring authentication and checking for necessary voice changer resources.
 
 4. **Get the voice list.** The voice list can be queried after the engine is successfully prepared.
 
 ```kotlin
-engine.getVoiceList() // Returns ArrayList<VCVoice>, which may be null.
+engine.getVoiceList() // Returns ArrayList<DubbingVoice>, which may be empty.
 ```
 
 5. **Set the voice.** Select a voice from the list obtained in step 5 and set it. This is an asynchronous operation, and the result will **call back** to `onActionResult`.
 
 ```kotlin
-engine.setVoice(voice)
+engine.setVoice(voice.id)
 ```
 
 6. **Start the voice changer.**
@@ -116,7 +105,7 @@ engine.stop()
 engine.transform(data) // data is a byte array
 ```
 
-**Note:** Voice transformation will only succeed if the engine status is `VCEngineStatus.STARTED` (after the operation in step 6) and the voice is successfully set; otherwise, the original sound will be returned.
+**Note:** Voice transformation will only succeed if the engine status is `VCEngineStatus.STARTED` (after the operation in step 6) and the voice is successfully set.
 
 9. **Release the engine.**
 
@@ -135,10 +124,10 @@ If you only need to download the resources, you can perform steps 1 and 2 in Dir
 If you only need to **check the required resource files**, you can call the following method.
 
 ```kotlin
-engine.checkFile()
+engine.checkResources()
 ```
 
-Then, handle the result in the `VCEngineCallback`'s `onActionResult` callback. See the example code below.
+Then, handle the result in the `DubbingEngineCallback`'s `onActionResult` callback. See the example code below.
 
 **Note:** If files need to be downloaded, the `msg` parameter will return a **JSON string**, for example:
 `{"fileCount":0,"fileLength":100000}`.
@@ -146,8 +135,8 @@ Then, handle the result in the `VCEngineCallback`'s `onActionResult` callback. S
 * `fileLength` indicates the total size of the files in **bytes**. This size is not an exact value but can be used for display purposes in the user interface.
 
 ```kotlin
-if (action == VCAction.CHECK_FILE) {
-    if (code == VCEngineCode.SUCCESS) {
+if (action == DubbingAction.CHECK_RESOURCES) {
+    if (code == DubbingEngineCode.SUCCESS) {
         Log.d("tag", "Resource files already downloaded")
     } else {
         msg?.let {
@@ -169,7 +158,7 @@ if (action == VCAction.CHECK_FILE) {
 When capturing and playing simultaneously (self-capture/playback) or converting a file, the data length passed when calling `transform` is calculated as follows:
 
 ```kotlin
-val bufferSize = outputSampleRate / 100 * 32
+val bufferSize = sampleRate / 100 * 16 * bytes * channels
 ```
 
 Self-Capture/Playback Example Code:
