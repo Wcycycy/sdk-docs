@@ -67,7 +67,7 @@ engine.prepare()
 
 3. **Start the voice changer worker thread** and initialize the engine within the worker thread. The engine can be initialized after the resources are prepared.
 
-3.1. **Check if resources are ready** in the `onActionResult` callback from the first step:
+**Check if resources are ready** in the `onActionResult` callback from the first step:
 
 ```kotlin
 val success = action == DubbingAction.PREPARE && code == DubbingEngineCode.SUCCESS
