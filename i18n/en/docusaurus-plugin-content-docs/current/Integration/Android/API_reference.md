@@ -86,9 +86,6 @@ Gets the current pitch value.
 ### proCalibration
 Performs calibration for Pro mode.
 
-### transformSync(originData: ByteArray): ByteArray?
-Synchronously converts the audio data. Input: `originData: ByteArray`. Returns: `ByteArray?` (converted data).
-
 ### getDelayMillis(): Int
 Gets the processing delay (latency) in milliseconds. Returns: `Int`.
 
@@ -97,13 +94,17 @@ Gets the processing delay (latency) in milliseconds. Returns: `Int`.
 | Parameter Name | Parameter Type | Default Value | Description |
 | :--- | :--- | :--- | :--- |
 | callback | DubbingCallback | null | Engine event callback |
-| sampleRate | int | 16000 | Input Sample Rate |
-| samplesPerCall | int | | Sample size for each audio data callback. Default calculated by the engine: samplesPerCall = outputSampleRate / 100 * 16 * 2. |
+| sampleRate | Int | 48000 | Sample Rate |
+| samplesPerCall | Int | | Sample size for each audio data callback. Default calculated by the engine: samplesPerCall = sampleRate / 100 * 16 * format.bytes * channel. 16 stands for 160 milliseconds. |
 | mToken | String | null | Authentication token, obtained by the developer. |
 | debugHelper | TransformDebugHelper | null | Calculation utility class, can statistical performance data during voice transformation. Only takes effect when transformDebug is true. |
-| muteOnFail | boolean | true | Whether to mute when voice transformation fails. |
-| debug | boolean | false | Whether to print engine operation Log |
-| transformDebug | boolean | false | Whether to print engine voice transformation process Log. Enabling this will greatly increase the Log output volume. |
+| muteOnFail | Boolean | true | Whether to mute when voice transformation fails. |
+| debug | Boolean | false | Whether to print engine operation Log |
+| transformDebug | Boolean | false | Whether to print engine voice transformation process Log. Enabling this will greatly increase the Log output volume. |
+| resourcePath | String | dubbing_resource | The default value is obtained via the following code: "${context?.filesDir}/dubbing_resource". |
+| channel | Int | 1 | Default channel count. |
+| format | AudioSampleFormat | AUDIO_PCM_S16 | Default audio format. |
+| isSync | Boolean | false | Whether to perform synchronous transform. |
 
 ## DubbingEngine.EngineConfig
 
@@ -120,12 +121,12 @@ Enables voice transformation Log. Voice transformation is a high-frequency opera
 Effect is the same as transformLog(), and the helper will record various time data of the voice transformation.
 
 ### token
-Authentication token, issued by the server. Required in 1.x version, optional in 2.x.
+Authentication token, issued by the server.
 
-### sampleRate (Optional)
-Sample Rate. The default value is 16000. Common optional values include 16000, 24000, and 48000.
+### sampleRate
+Sample Rate. The default value is 48000. Common optional values include 16000, 24000, and 48000.
 
-### engineCallback(callback) (Optional)
+### engineCallback(callback)
 Engine Callback.
 
 | Parameter Name | Parameter Type | Description |
@@ -139,13 +140,22 @@ Builds the DubbingEngine instance.
 ### muteOnFail
 Whether to mute when voice transformation fails.
 
+### sync
+Set synchronous transform enable.
+
+### channel
+Number of audio channels.
+
+### format
+Set audio format.
+
 ### samplesPerCall
 Sample size for each audio data callback.
 The length of each frame needs to be a multiple of 10 milliseconds.
-If you require 10 milliseconds of data, 16 bits, single channel, and sample rate 16000.
+If you require 10 milliseconds of data, 16 bits, single channel, and sample rate 48000.
 val bytes = 2
 val channel = 1
-samplesPerCall = 16000 / 100 * bytes * channel
+samplesPerCall = 48000 / 100 * bytes * channel
 
 ## DubbingCallback
 
