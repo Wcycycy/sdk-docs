@@ -2,18 +2,18 @@
 sidebar_position: 1
 ---
 
-# Authentication Overview 
+# 身份验证概览 
 
-The diagram below outlines the basic authentication workflow:
+下图展示了基础的身份验证工作流：
 
-<img src="/img/Dubbing AI Auth Flow.png" alt="Authentication Flow Diagram" width="800" />
+<img src="/img/Dubbing AI Auth Flow.png" alt="身份验证流程图" width="800" />
 
-1. The client sends a signature request to the user’s server.
+1. 客户端向用户服务器发送签名请求。
 
-2. The user’s server generates the signature based on predefined rules and returns it.
+2. 用户服务器根据预定义规则生成签名并返回。
 
-3. After receiving the signature, the client calls the Dubbing AI SDK to perform login.
+3. 客户端收到签名后，调用 Dubbing AI SDK 执行登录。
 
-4. The Dubbing AI server verifies the signature included in the SDK request.
+4. Dubbing AI 服务器验证 SDK 请求中包含的签名。
 
-5. The client receives the successful login response and creates the engine. 
+5. 客户端收到登录成功的响应并创建引擎。

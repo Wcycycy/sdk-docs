@@ -2,20 +2,20 @@
 sidebar_position: 1
 ---
 
-# Introduction
+# 简介
 
-The **Real-time Voice Conversion SDK** is a proprietary low-latency AI timbre-conversion engine developed by the **Dubbing AI team**. It powers products such as the Dubbing AI Voice Changer (PC) and Dubbing Box (hardware), and is provided as a standardized B2B SDK that enables developers to efficiently integrate high-fidelity, real-time voice transformation with minimal resource overhead.
+**实时语音变换 SDK（Real-time Voice Conversion SDK）** 是由 **Dubbing AI 团队** 自主研发的一款低延迟 AI 音色变换引擎。该 SDK 为 Dubbing AI Voice Changer（PC 端）和 Dubbing Box（硬件设备）等产品提供核心能力，并以标准化 B2B SDK 的形式对外提供，帮助开发者以极低的资源开销，高效集成高保真、实时的语音变换能力。
 
-## Application Scenarios
+## 应用场景
 
-| Scenario     | Description     
+| 场景 | 描述 |
 |-----------|----------|
-| Game Streaming   | Adds engaging auditory effects to fast-paced game streams, enhancing the entertainment value of the broadcast.   | 
-| Virtual Avatars  | Customize or select voices that match different virtual characters, giving each avatar a unique and recognizable voice identity.   | 
-| Social Voice Chat      | In voice-based social interactions, users can select attractive or character-like voices to chat more comfortably and enjoyably.   | 
+| 游戏直播 | 为快节奏的游戏直播添加更具吸引力的声音效果，显著提升直播内容的娱乐性。 |
+| 虚拟形象 | 为不同的虚拟角色定制或选择匹配的音色，使每个虚拟形象都拥有独特且易于识别的声音特征。 |
+| 社交语音聊天 | 在语音社交场景中，用户可以选择更具吸引力或角色感的音色进行交流，使聊天过程更加轻松、有趣。 |
 
-## General Specs
+## 通用规格
 
-- **Supported Languages**: Dubbing AI Voice Changer supports 40+ languages and dialects, along with highly emotional vocal expressions such as screaming, sighing, singing, mumbling, and whispering.
-- **Supported Platforms**: Desktop, iOS, Android
-- **Performance Metrics**: Designed for low latency (≈500 ms) and high emotional fidelity, ensuring real-time performance without degrading voice quality.
+- **支持语言**：Dubbing AI Voice Changer 支持 40 多种语言及方言，并支持高度情绪化的声音表达，包括喊叫、叹息、歌唱、低语、含糊发音和耳语等。
+- **支持平台**：桌面端、iOS、Android
+- **性能指标**：以低延迟（约 500 毫秒）和高情感保真度为设计目标，在保证实时性的同时不降低音质表现。
