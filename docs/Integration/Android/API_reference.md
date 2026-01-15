@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # API Reference
 
-## VCEngine
+## DubbingEngine
 
 ### prepare
 Prepares the resources required by the engine and performs authentication. The first time it is called, it downloads the voice model files, which takes a longer time.
@@ -131,10 +131,10 @@ Engine Callback.
 | Parameter Name | Parameter Type | Description |
 | :--- | :--- | :--- |
 | callback | DubbingEngineCallback Interface | /** Downloads progress * @param percent Current download file progress, integer from 0-100, 100 means current file download is complete * @param index The index of the current file being downloaded, starting from 1 * @param count The total number of files to be downloaded */ fun onDownload(percent: Int , index: Int, count: Int) |
-| | | /** Event change * @param action Event * @param code Event result * @param msg Message */ fun onActionResult(action: VCAction, code: VCEngineCode, msg: String? = null ) |
+| | | /** Event change * @param action Event * @param code Event result * @param msg Message */ fun onActionResult(action: DubbingAction, code: DubbingEngineCode, msg: String? = null ) |
 
 ### buildEngine
-Builds the VCEngine instance.
+Builds the DubbingEngine instance.
 
 ### muteOnFail
 Whether to mute when voice transformation fails.

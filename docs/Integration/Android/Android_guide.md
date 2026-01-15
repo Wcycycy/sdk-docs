@@ -70,7 +70,7 @@ engine.prepare()
 3.1. **Check if resources are ready** in the `onActionResult` callback from the first step:
 
 ```kotlin
-val success = action == VCAction.PREPARE && code == VCEngineCode.SUCCESS
+val success = action == DubbingAction.PREPARE && code == DubbingEngineCode.SUCCESS
 ```
 
 **Note:** The engine's `prepare()` is asynchronous, requiring authentication and checking for necessary voice changer resources.
@@ -105,7 +105,7 @@ engine.stop()
 engine.transform(data) // data is a byte array
 ```
 
-**Note:** Voice transformation will only succeed if the engine status is `VCEngineStatus.STARTED` (after the operation in step 6) and the voice is successfully set.
+**Note:** Voice transformation will only succeed if the engine status is `DubbingEngineStatus.STARTED` (after the operation in step 6) and the voice is successfully set.
 
 9. **Release the engine.**
 
