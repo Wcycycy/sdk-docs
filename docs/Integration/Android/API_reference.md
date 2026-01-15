@@ -101,7 +101,7 @@ Gets the processing delay (latency) in milliseconds. Returns: `Int`.
 | muteOnFail | Boolean | true | Whether to mute when voice transformation fails. |
 | debug | Boolean | false | Whether to print engine operation Log |
 | transformDebug | Boolean | false | Whether to print engine voice transformation process Log. Enabling this will greatly increase the Log output volume. |
-| resourcePath | String | dubbing_resource | The default value is obtained via the following code: "${context?.filesDir}/dubbing_resource". |
+| resourcePath | String | dubbing_resource | The default value is obtained via the following code: `"${context?.filesDir}/dubbing_resource"`. |
 | channel | Int | 1 | Default channel count. |
 | format | AudioSampleFormat | AUDIO_PCM_S16 | Default audio format. |
 | isSync | Boolean | false | Whether to perform synchronous transform. |
