@@ -6,7 +6,7 @@ sidebar_position: 1
 
 下图展示了基础的身份验证工作流：
 
-<img src="/img/Dubbing AI Auth Flow.png" alt="身份验证流程图" width="800" />
+<img src="/img/Dubbing AI Auth Flow.png" alt="Authentication Flow Diagram" width="800" />
 
 1. 客户端向用户服务器发送签名请求。
 

@@ -2,36 +2,36 @@
 sidebar_position: 2
 ---
 
-# Generate Signature
+# 生成签名
 
-This section describes how to generate the signature required by the Dubbing SDK for authentication.  
-**Important:** Signature generation must be performed **on your server**, never on the client, to avoid leaking the `secretKey`.
+本节介绍如何生成 Dubbing SDK 鉴权所需的签名。  
+**重要提示：** 签名生成必须 **在你的服务器端完成**，绝不能在客户端生成，以避免 `secretKey` 泄露。
 
 ---
 
-## 1. Preparation: Keys (accessKey / secretKey)
+## 1. 准备：密钥（accessKey / secretKey）
 
 :::caution
 
-Please [contact us](https://app.youform.com/forms/pgax91mz) to obtain the keys required to integrate and launch your project.
+请 [联系我们](https://app.youform.com/forms/pgax91mz) 以获取集成和上线项目所需的密钥。
 
 :::
 
-The Dubbing SDK uses paired keys:
+Dubbing SDK 使用一对密钥：
 
-- **accessKey** — Works like an account identifier. It *will* be transmitted.
-- **secretKey** — Works like a password. **Never expose or transmit it to clients.**
+- **accessKey** —— 类似于账号标识，*会* 被传输。
+- **secretKey** —— 类似于密码，**绝不能暴露或传输给客户端。**
 
-Your server must provide a signature-generation endpoint.  
-Clients request the signature → server generates it → server returns it to clients.
+你的服务器必须提供一个用于生成签名的接口。  
+客户端请求签名 → 服务器生成签名 → 服务器将签名返回给客户端。
 
-If the `secretKey` is compromised, the administrator must replace the key immediately.
+如果 `secretKey` 泄露，管理员必须立即更换密钥。
 
 ---
 
-## 2. Build the Signature String
+## 2. 构建签名字符串
 
-The signature string consists of **three lines**, each ending with a newline (`\n`):
+签名字符串由 **三行内容** 组成，每一行末尾都需要包含一个换行符（`\n`）：
 
 ```
 timestamp
@@ -42,35 +42,35 @@ userId
 
 ```
 
-### Step 1 — Generate timestamp
-Current Unix timestamp in seconds.
+### 步骤 1 — 生成时间戳
+当前 Unix 时间戳（秒）。
 
-Example command:
+示例命令：
 ```bash
 date +%s
 ```
 
-Example value:
+示例值：
 ```
 1676546987
 ```
 
-### Step 2 — Generate a random nonce
-The nonce should be a random string. Example:
+### 步骤 2 — 生成随机 nonce
+nonce 应为随机字符串，例如：
 
 ```bash
 hexdump -n 16 -e '4/4 "%08X" 1 "\n"' /dev/random
 ```
 
-Example output:
+示例输出：
 ```
 1E7889295850730393A955964821CAF6
 ```
 
-### Step 3 — User ID  
-Example: `518`
+### 步骤 3 — 用户 ID  
+示例：`518`
 
-### Step 4 — Combine to form signature string:
+### 步骤 4 — 组合生成签名字符串：
 
 ```
 1676546987
@@ -83,34 +83,34 @@ Example: `518`
 
 ---
 
-## 3. Compute Signature Value
+## 3. 计算签名值
 
-Use **HMAC-SHA1** with your `secretKey`, then Base64-URL encode the result.
+使用你的 `secretKey` 进行 **HMAC-SHA1** 计算，然后对结果进行 Base64-URL 编码。
 
-Example signature:
+示例签名：
 ```
 B3W62RX1D4uJCJlRCX_SFuMevrw=
 ```
 
 ---
 
-## 4. Construct Final Signature Token
+## 4. 构造最终签名 Token
 
-Format:
+格式如下：
 
 ```
 key="value",key="value",...
 ```
 
-Fields:
+字段说明：
 
 - `access_key`
 - `timestamp`
 - `nonce`
-- `id`  (userId)
+- `id`（userId）
 - `signature`
 
-Example:
+示例：
 
 ```
 access_key="abcde",timestamp="1676546987",nonce="1E7889295850730393A955964821CAF6",id="518",signature="B3W62RX1D4uJCJlRCX_SFuMevrw="
@@ -118,7 +118,7 @@ access_key="abcde",timestamp="1676546987",nonce="1E7889295850730393A955964821CAF
 
 ---
 
-## 5. Server-Side Example Code (Java)
+## 5. 服务端示例代码（Java）
 ```javascript
 package org.example;
 
