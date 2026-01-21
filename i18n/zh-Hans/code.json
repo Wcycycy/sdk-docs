@@ -15,6 +15,9 @@
     "message": "Dubbing AI 是一款面向游戏、直播和会议的实时语音变换器，提供 500 多种 AI 声音和 10 万多种梗图音效板，且具有极低的延迟。",
     "description": "The tagline of the site"
   },
+  "homepage.button.getStarted": {
+    "message": "立即开始"
+  },
   "theme.ErrorPageContent.title": {
     "message": "页面已崩溃。",
     "description": "The title of the fallback page when the page crashed"
