@@ -96,8 +96,9 @@ const config = {
             label: 'Documentation',
           },
           {
-            label: 'Changelog',
             to: '/changelog',
+            position: 'left',
+            label: 'Changelog',
           },
           {
           type: 'localeDropdown', // 自动在导航栏生成语言切换菜单

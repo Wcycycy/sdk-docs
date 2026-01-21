@@ -4,11 +4,11 @@
     "description": "The alt text of navbar logo"
   },
   "item.label.Documentation": {
-    "message": "Documentation",
+    "message": "文档",
     "description": "Navbar item with label Documentation"
   },
   "item.label.Changelog": {
-    "message": "Changelog",
+    "message": "更新日志",
     "description": "Navbar item with label Changelog"
   }
 }

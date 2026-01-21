@@ -1,22 +1,56 @@
 {
-  "theme.navbar.item.label.Documentation": {
-    "message": "文档",
-    "description": "Navbar item with label Documentation"
+  "navbar.documentation": { "message": "文档" },
+  "navbar.changelog": { "message": "更新日志" },
+  "homepage.hero.title": {
+    "message": "欢迎来到 Dubbing AI SDK 文档中心"
   },
-  "theme.navbar.item.label.Changelog": {
-    "message": "更新日志",
-    "description": "Navbar item with label Changelog"
+
+  "homepage.hero.tagline": {
+    "message": "Dubbing AI 是一款面向游戏、直播和会议的实时语音变换 SDK，提供 500 多种 AI 音色和 10 万多种梗图音效，且具备极低的延迟。"
   },
-  "siteConfig.title": {
-    "message": "欢迎来到 Dubbing AI SDK 文档中心",
-    "description": "The title of the site"
-  },
-  "siteConfig.tagline": {
-    "message": "Dubbing AI 是一款面向游戏、直播和会议的实时语音变换器，提供 500 多种 AI 声音和 10 万多种梗图音效板，且具有极低的延迟。",
-    "description": "The tagline of the site"
-  },
+
   "homepage.button.getStarted": {
     "message": "立即开始"
+  },
+
+  "homepage.meta.title": {
+    "message": "Dubbing AI SDK 文档中心"
+  },
+
+  "homepage.meta.description": {
+    "message": "Dubbing AI 实时语音变换 SDK 官方文档，支持游戏、直播与语音社交场景。"
+  },
+
+  "homepage.layout.title": {
+    "message": "欢迎使用 Dubbing AI"
+  },
+
+  "homepage.layout.description": {
+    "message": "Dubbing AI SDK 官方开发文档与集成指南。"
+  },
+
+  "homepage.features.awesomeVoices.title": {
+    "message": "海量音色"
+  },
+
+  "homepage.features.awesomeVoices.desc": {
+    "message": "提供 500 多种来自动漫、游戏、影视及名人的音色，并支持语音克隆，打造你的专属声音。"
+  },
+
+  "homepage.features.lowLatency.title": {
+    "message": "超低延迟"
+  },
+
+  "homepage.features.lowLatency.desc": {
+    "message": "语音变换延迟低于 30 毫秒，无需预录，实现真正实时的变声体验。"
+  },
+
+  "homepage.features.easyToUse.title": {
+    "message": "简单易用"
+  },
+
+  "homepage.features.easyToUse.desc": {
+    "message": "提供完整的文档与示例，帮助你快速集成 AI Voice SDK，并在遇到问题时获得支持。"
   },
   "theme.ErrorPageContent.title": {
     "message": "页面已崩溃。",
