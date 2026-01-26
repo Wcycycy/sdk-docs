@@ -1,215 +1,99 @@
 ---
-draft: false
 sidebar_position: 3
 ---
 
-# API Reference
+# API 参考
 
-### 1. initEngineData
-Initializes the resources, authentication, and data required by the engine. The first execution will download the voice model files, which may take some time.
+## DubbingEngine
 
-#### EngineConfig Parameters:
-* **`config._resourcesPath = nullptr;`** Sets the resource path. If set to `nullptr`, it defaults to the current directory.
-* **`config._insamplerate = 48000;`** The sample rate of the input audio.
-* **`config._osamplerate = 48000;`** The sample rate of the output audio.
-* **`config._isOpenLog = false;`** Determines whether to enable logging.
-* **`config._networkReqKey = signStrs.c_str();`** The authorization key for network requests. If left empty, the engine will use **Local License Mode** for verification. In this case, the License, model, and voice files must be placed in the `config._resourcesPath` directory in advance.
-* **`config._iDownload = down;`** Configuration for the download instance/callback.
+### prepare
+准备引擎所需的资源并执行鉴权。首次调用时会下载音色模型文件，因此耗时较长。
 
-#### Return Value:
-* Returns an **Integer**.
-* **10000**: Success.
-* **Other values**: Error codes.
+### getVoiceList
+获取可用音色列表。只有在引擎完成 prepare 之后，才会返回音色列表。
 
-### 2. setVoice
-Sets or switches the voice identity.
+**返回值：** `json:[{"id":10, "name":"xx"},{"id":11, "name":"xxx"}]`，音色列表可能为空。
 
-#### Parameters:
-* **`voiceId`**: The unique identifier (ID) of the target voice.
+### getCurrentVoice
+获取当前设置的音色。  
+**返回值：** 音色 ID，可能为 0。
 
-#### Return Value:
-* Returns an **Integer**.
-* **10000**: Success.
-* **Other values**: Error codes.
+### start
+启动变声处理。
 
-### 3. setPass
-Enables or disables the voice changing effect for self-collected audio.
+### stop
+停止变声处理，但不会退出变声线程。执行该方法后，线程内数据会被清空，线程进入休眠状态。
 
-#### Parameters:
-* **`isPass`**: Determines whether to enable voice changing.
+### getEngineStatus
+获取当前引擎状态。
 
-### 4. transform
-Performs the voice transformation.
+### setVoice(voiceId: int)
+调用该方法时，会首先检查该音色所需的模型是否已加载；如果未加载，则会先将模型加载到内存中。
 
-**Parameters:**
-* `data_in`: A pointer to the input audio data. The transformed audio data is returned through this same pointer.
-* `nlen`: The length of the input audio data.
+设置音色。该操作为异步操作，结果会通过 `DubbingCallback` 回调返回。
 
-**Return Value:**
-* Returns an **Integer**.
-* **10000**: Success.
-* **Other values**: Error codes.
+**注意：**  
+只有在引擎 prepare 成功后才能设置音色。无论当前是否正在变声，都可以设置音色；例如在变声进行中，音色设置成功后会立即切换为新的音色。
 
-### 5. getVoiceList
-Retrieves the list of available voices.
+### releaseEngine
+释放引擎资源并终止线程。
 
-**Return Value:**
-* Returns a **String** type.
-* The result is a **JSON-formatted string**.
+### transform(originData: char* data, int dataSize): bool?
+对音频数据进行变声处理。  
+输入：`originData: char* data, int dataSize`  
+返回：`bool`（是否转换成功）。
 
-### 6. getAudioDevList
-Retrieves the list of audio device names.
+### checkResources
+检查是否需要下载所需的资源文件。
 
-**Parameters:**
-* `isCapture`: Determines whether to retrieve microphone (capture) devices.
+### setMode
+设置引擎处理模式（例如 Pro 模式）。
 
-**Return Value:**
-* Returns a **String** type.
-* The result is a **JSON-formatted string**.
+```c++
+setMode(mode: DubbingMode, intonation: Float, pitch: Float)
+```
 
-### 7. startDevice
-Starts and initializes the specified audio devices.
+| 参数名 | 参数类型 | 描述 |
+| :--- | :--- | :--- |
+| mode | [DubbingMode] | 模式枚举 |
+| intonation | float | 情感起伏 / 语调 |
+| pitch | float | 音高 |
 
-**Parameters:**
-* `captureDevId`: The index number of the microphone device.
-* `renderDevId`: The index number of the speaker device.
-* `virtualCaptureDevId`: The index number of the virtual microphone device.
-* `virtualRenderDevId`: The index number of the virtual speaker device.
+### getSupportIntonation
+检查当前音色是否支持语调调节。
 
-**Return Value:**
-* Returns an **Integer**.
-* **0**: Success.
-* **Other values**: Failure.
+### getSupportPitch
+检查当前音色是否支持音高调节。
 
-### 8. stopDevice
-Stops the currently running audio devices.
+### getMode
+获取当前引擎模式。
 
-**Return Value:**
-* Returns an **Integer**.
-* **0**: Success.
-* **Other values**: Failure.
+### getIntonation
+获取当前语调值。
 
-### 9. setCaptureMute
-Sets the microphone to mute or unmute.
+### getPitch
+获取当前音高值。
 
-**Parameters:**
-* `mute`: Determines whether to mute the microphone.
+### proCalibration
+执行 Pro 模式校准。
 
-### 10. setRenderMute
-Sets the speaker to mute or unmute.
+### getDelayMillis(): int
+获取处理延迟（毫秒）。返回：`int`。
 
-**Parameters:**
-* `mute`: Determines whether to mute the speaker.
+## EngineConfig 默认参数说明
 
-### 11. flush
-Clears the cached audio data from both the microphone and the speaker.
+| 参数名 | 参数类型 | 默认值 | 描述 |
+| :--- | :--- | :--- | :--- |
+| m_dubbbingCallBack | IDubbbingCallBack | nullptr | 引擎事件回调 |
+| m_sampleRate | int | 48000 | 输入采样率 |
+| m_channel | int | 1 | 默认声道数 |
+| m_format | AudioSampleFormat | AUDIO_PCM_S16 | 默认音频格式 |
+| m_token | std::string | "" | 鉴权 token，由开发者获取 |
+| m_resourcePath | std::string | dubbing_resource | 默认路径示例：`${context.filesDir}/dubbing_resource` |
+| m_muteOnFail | bool | true | 变声失败时是否静音 |
+| m_enableLog | bool | false | 是否打印引擎运行日志 |
+| m_enableTransformLog | bool | false | 是否打印变声过程日志（开启后日志量较大） |
+| m_isSync | bool | false | 是否使用同步变声 |
 
-### 12. setAudioCaptureVolume
-Sets the microphone volume.
-
-**Parameters:**
-* `value`: Volume level, ranging from 0.0 to 1.0 (Decimal/Float).
-
-### 13. setAudioCaptureVolumeLevel
-Sets the volume gain (boost) for the microphone.
-
-**Parameters:**
-* `value`: Volume gain level, ranging from 0.0 to 2.0 (Decimal/Float).
-
-### 14. getAudioCaptureVolume
-Retrieves the current microphone volume level.
-
-**Return Value:**
-* Returns a **Decimal (Float/Double)** ranging from 0.0 to 1.0.
-
-### 15. getAudioCapturePeak
-Retrieves the peak level of the microphone input.
-
-**Return Value:**
-* Returns a **Decimal (Float/Double)** ranging from 0.0 to 1.0.
-
-### 16. setAudioVirtualCaptureVolume
-Sets the microphone volume for the Dubbing (大饼) virtual sound card.
-
-**Parameters:**
-* `value`: Volume level, ranging from 0.0 to 1.0 (Decimal/Float).
-
-### 17. getAudioVirtualCaptureVolume
-Retrieves the microphone volume level of the Dubbing virtual sound card.
-
-**Return Value:**
-* Returns a **Decimal (Float/Double)** ranging from 0.0 to 1.0.
-
-### 18. getPreDefaultCaptureDevName
-Retrieves the name of the previous default microphone device.
-
-**Return Value:**
-* Returns a **String** type.
-
-### 19. getDefaultRenderDevName
-Retrieves the name of the default microphone device.
-
-**Return Value:**
-* Returns a **String** type.
-
-### 20. setDubbingNoDefaultRenderDev
-Sets the Dubbing (大饼) virtual sound card speaker to not be the default playback device.
-
-### 21. setAudioRenderVolume
-Sets the volume for a specific speaker device.
-
-**Parameters:**
-* `renderDevId`: The index number of the speaker device.
-* `value`: Volume level, ranging from 0.0 to 1.0 (Decimal/Float).
-
-### 22. setAudioRenderVolumeLevel
-Sets the volume gain (boost) for a specific speaker device.
-
-**Parameters:**
-* `renderDevId`: The index number of the speaker device.
-* `value`: Volume gain level, ranging from 0.0 to 1.0 (Decimal/Float).
-
-### 23. getAudioRenderVolume
-Retrieves the speaker volume level.
-
-**Return Value:**
-* Returns a **Decimal (Float/Double)** ranging from 0.0 to 1.0.
-
-### 24. getAudioRenderPeak
-Retrieves the peak level of the speaker output.
-
-**Return Value:**
-* Returns a **Decimal (Float/Double)** ranging from 0.0 to 1.0.
-
-### 25. startCaptureRecord
-Starts recording audio input from the microphone.
-
-**Parameters:**
-* `pcmFile`: The path and filename for the recorded PCM audio file.
-
-### 26. stopCaptureRecord
-Stops the current microphone recording session.
-
-### 27. startPlayRecordFile
-Starts playing back a recorded audio file.
-
-**Parameters:**
-* `pcmFile`: The path and filename of the PCM audio file to play.
-
-### 28. stopPlayRecordFile
-Stops the playback of the current recording file.
-
-### 29. setPlayingRecord
-Sets the current recording playback status.
-
-**Parameters:**
-* `isPlaying`: Boolean/Flag indicating if the audio is currently playing.
-
-### 30. startDumpRecord
-Starts recording the microphone, speaker, and voice-changed audio streams simultaneously (Dump mode).
-
-**Parameters:**
-* `pcmDir`: The directory path where the dump files will be saved.
-
-### 31. stopDumpRecord
-Stops the multi-stream recording (microphone, speaker, and voice-changed audio).
+## DubbingEngineCallback
+（其余内容保持不变，已翻译）

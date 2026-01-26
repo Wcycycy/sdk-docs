@@ -1,215 +1,180 @@
 ---
-draft: false
 sidebar_position: 3
 ---
 
 # API Reference
 
-### 1. initEngineData
-Initializes the resources, authentication, and data required by the engine. The first execution will download the voice model files, which may take some time.
+## DubbingEngine
 
-#### EngineConfig Parameters:
-* **`config._resourcesPath = nullptr;`** Sets the resource path. If set to `nullptr`, it defaults to the current directory.
-* **`config._insamplerate = 48000;`** The sample rate of the input audio.
-* **`config._osamplerate = 48000;`** The sample rate of the output audio.
-* **`config._isOpenLog = false;`** Determines whether to enable logging.
-* **`config._networkReqKey = signStrs.c_str();`** The authorization key for network requests. If left empty, the engine will use **Local License Mode** for verification. In this case, the License, model, and voice files must be placed in the `config._resourcesPath` directory in advance.
-* **`config._iDownload = down;`** Configuration for the download instance/callback.
+### prepare
+Prepares the resources required by the engine and performs authentication. The first time it is called, it downloads the voice model files, which takes a longer time.
 
-#### Return Value:
-* Returns an **Integer**.
-* **10000**: Success.
-* **Other values**: Error codes.
+### getVoiceList
+Gets the list of available voice tones. The list of available voice tones will only be returned after the engine is prepared.
 
-### 2. setVoice
-Sets or switches the voice identity.
+**Return value:** `json:[{"id":10, "name":"xx"},{"id":11, "name":"xxx"}]`, the voice list may be empty.
 
-#### Parameters:
-* **`voiceId`**: The unique identifier (ID) of the target voice.
+### getCurrentVoice
+Gets the currently set voice.
+**Return value:** Voice id, may be 0.
 
-#### Return Value:
-* Returns an **Integer**.
-* **10000**: Success.
-* **Other values**: Error codes.
+### start
+Starts the voice conversion.
 
-### 3. setPass
-Enables or disables the voice changing effect for self-collected audio.
+### stop
+Stops the voice conversion, but does not exit the voice conversion thread. After executing this method, the data in the thread is cleared, and the thread goes to sleep.
 
-#### Parameters:
-* **`isPass`**: Determines whether to enable voice changing.
+### getEngineStatus
+Gets the current status of the engine.
 
-### 4. transform
-Performs the voice transformation.
+### setVoice(voiceId: int)
+When calling this method, it first checks if the model required for the voice tone has been loaded. If not, it loads the model into memory.
 
-**Parameters:**
-* `data_in`: A pointer to the input audio data. The transformed audio data is returned through this same pointer.
-* `nlen`: The length of the input audio data.
+Sets the voice. This operation is asynchronous, and the result is returned in the `DubbingCallback` callback.
 
-**Return Value:**
-* Returns an **Integer**.
-* **10000**: Success.
-* **Other values**: Error codes.
+**Note:** It can only be set successfully after the engine is prepared. It can be set whether voice conversion is currently active or not. For example, if voice conversion is active, the sound will immediately change to the new voice tone upon successful setting.
 
-### 5. getVoiceList
-Retrieves the list of available voices.
+### releaseEngine
+Releases the engine resources and terminates the thread.
 
-**Return Value:**
-* Returns a **String** type.
-* The result is a **JSON-formatted string**.
+### transform(originData: char* data, int dataSize): bool?
+Converts the audio data. Input: `originData: char* data, int dataSize `. Returns: `bool` (converted data).
 
-### 6. getAudioDevList
-Retrieves the list of audio device names.
+### checkResources
+Checks if required resource files need to be downloaded.
 
-**Parameters:**
-* `isCapture`: Determines whether to retrieve microphone (capture) devices.
+### setMode
+Sets the engine's processing mode (e.g., Pro mode).
 
-**Return Value:**
-* Returns a **String** type.
-* The result is a **JSON-formatted string**.
+```c++
+setMode(mode: DubbingMode, intonation: Float, pitch: Float)
+```
 
-### 7. startDevice
-Starts and initializes the specified audio devices.
+| Parameter Name | Parameter Type | Description |
+| :--- | :--- | :--- |
+| mode | [DubbingMode] | Mode enumeration |
+| intonation | float | Emotional fluctuation / Intonation |
+| pitch | float | Pitch |
 
-**Parameters:**
-* `captureDevId`: The index number of the microphone device.
-* `renderDevId`: The index number of the speaker device.
-* `virtualCaptureDevId`: The index number of the virtual microphone device.
-* `virtualRenderDevId`: The index number of the virtual speaker device.
+### getSupportIntonation
+Checks if the current voice supports intonation adjustment.
 
-**Return Value:**
-* Returns an **Integer**.
-* **0**: Success.
-* **Other values**: Failure.
+### getSupportPitch
+Checks if the current voice supports pitch adjustment.
 
-### 8. stopDevice
-Stops the currently running audio devices.
+### getMode
+Gets the current engine mode setting.
 
-**Return Value:**
-* Returns an **Integer**.
-* **0**: Success.
-* **Other values**: Failure.
+### getIntonation
+Gets the current intonation value.
 
-### 9. setCaptureMute
-Sets the microphone to mute or unmute.
+### getPitch
+Gets the current pitch value.
 
-**Parameters:**
-* `mute`: Determines whether to mute the microphone.
+### proCalibration
+Performs calibration for Pro mode.
 
-### 10. setRenderMute
-Sets the speaker to mute or unmute.
+### getDelayMillis(): int
+Gets the processing delay (latency) in milliseconds. Returns: `int`.
 
-**Parameters:**
-* `mute`: Determines whether to mute the speaker.
+## EngineConfig Default Values Description
 
-### 11. flush
-Clears the cached audio data from both the microphone and the speaker.
+| Parameter Name | Parameter Type | Default Value | Description |
+| :--- | :--- | :--- | :--- |
+| m_dubbbingCallBack | IDubbbingCallBack | nullptr | Engine event callback |
+| m_sampleRate | int | 48000 | Input Sample Rate |
+| m_channel | int | 1 | Default channel count |
+| m_format | AudioSampleFormat | AUDIO_PCM_S16 | Default audio format. |
+| m_token | std::string | "" | Authentication token, obtained by the developer. |
+| m_resourcePath | std::string | dubbing_resource | The default value is obtained via the following code: "${context?.filesDir}/dubbing_resource". |
+| m_muteOnFail | bool | true | Whether to mute when voice transformation fails. |
+| m_enableLog | bool | false | Whether to print engine operation Log. |
+| m_enableTransformLog | bool | false | Whether to print engine voice transformation process Log. Enabling this will greatly increase the Log output volume. |
+| m_isSync | bool | false | Whether to perform synchronous transform. |
 
-### 12. setAudioCaptureVolume
-Sets the microphone volume.
 
-**Parameters:**
-* `value`: Volume level, ranging from 0.0 to 1.0 (Decimal/Float).
+### EngineConfig(context: Context)
+Constructor.
 
-### 13. setAudioCaptureVolumeLevel
-Sets the volume gain (boost) for the microphone.
+### enableLog (Optional)
+Enables Log printing, which only prints process information during engine operation.
 
-**Parameters:**
-* `value`: Volume gain level, ranging from 0.0 to 2.0 (Decimal/Float).
+### enableTransformLog (Optional)
+Enables voice transformation Log. Voice transformation is a high-frequency operation, and enabling this will cause the Log information to refresh quickly.
 
-### 14. getAudioCaptureVolume
-Retrieves the current microphone volume level.
+### enableTransformLog(TransformDebugHelper) (Optional)
+Effect is the same as transformLog(), and the helper will record various time data of the voice transformation.
 
-**Return Value:**
-* Returns a **Decimal (Float/Double)** ranging from 0.0 to 1.0.
+### token
+Authentication token, issued by the server.
 
-### 15. getAudioCapturePeak
-Retrieves the peak level of the microphone input.
+### sampleRate (Optional)
+Sample Rate. The default value is 48000. Common optional values include 16000, 24000, and 48000.
 
-**Return Value:**
-* Returns a **Decimal (Float/Double)** ranging from 0.0 to 1.0.
+### DubbingCallback(callback) (Optional)
+Dubbing Callback.
 
-### 16. setAudioVirtualCaptureVolume
-Sets the microphone volume for the Dubbing (大饼) virtual sound card.
+| Parameter Name | Parameter Type | Description |
+| :--- | :--- | :--- |
+| callback | DubbingCallback Interface | /** Downloads progress * @param percent Current download file progress, integer from 0-100, 100 means current file download is complete * @param index The index of the current file being downloaded, starting from 1 * @param count The total number of files to be downloaded */ fun onDownload(percent: Int , index: Int, count: Int) |
+| | | /** Event change * @param action Event * @param code Event result * @param msg Message */ fun onActionResult(action: DubbingAction, code: DubbingRetCode, msg: std::string) |
 
-**Parameters:**
-* `value`: Volume level, ranging from 0.0 to 1.0 (Decimal/Float).
+### muteOnFail
+Whether to mute when voice transformation fails.
 
-### 17. getAudioVirtualCaptureVolume
-Retrieves the microphone volume level of the Dubbing virtual sound card.
+## DubbingEngineCallback
 
-**Return Value:**
-* Returns a **Decimal (Float/Double)** ranging from 0.0 to 1.0.
+### onDownload(percent: Int, index: Int, count: Int)
+| Parameter Name | Parameter Type | Description |
+| :--- | :--- | :--- |
+| percent | int | Current file download progress, ranging from 0 to 100. 100 means 100%. |
+| index | int | The index of the current file being downloaded, starting from 1. |
+| count | int | The total number of files to be downloaded. |
 
-### 18. getPreDefaultCaptureDevName
-Retrieves the name of the previous default microphone device.
+### onActionResult(action: DubbingAction, code: DubbingRetCode, msg: std::string)
+| Parameter Name | Parameter Type | Description |
+| :--- | :--- | :--- |
+| action | DubbingAction Enum | Event type. |
+| code | DubbingRetCode Enum | Event result. |
+| msg | std::string | Event message, may be null. |
 
-**Return Value:**
-* Returns a **String** type.
+## DubbingAction
+| Enum Value | Description |
+| :--- | :--- |
+| SET_VOICE | Set voice. |
+| AUTH | Auth action. |
+| PREPARE | Prepare engine. |
+| CHECK_RESOURCES | Check file. |
+| PRO_CALIBRATION | Pro mode calibration. |
 
-### 19. getDefaultRenderDevName
-Retrieves the name of the default microphone device.
+## DubbingRetCode
+| Enum Value | Description |
+| :--- | :--- |
+| SUCCESS | Success. |
+| UNKNOWN_ERROR | Unknown error. |
+| NET_REQUEST_ERROR | Network Error. |
+| NET_AUTH_ERROR | Authentication failed. |
+| LIC_ERROR | Authentication failed. |
+| ENGINE_STATUS_ERROR | The current engine status does not support this operation. |
+| RESOURCE_MISSING_FILES | Missing files. |
+| VOICE_SETTING | A voice already in the process of being set. |
+| VOICE_NOT_SET | Voice not set. |
 
-**Return Value:**
-* Returns a **String** type.
+## DubbingEngineStatus
+| Enum Value | Description |
+| :--- | :--- |
+| IDLE | Instance successfully created. |
+| PREPARING | Engine resources are being prepared. |
+| PREPARED | Engine resources are ready. |
+| STARTED | Voice transformation started. |
+| STOPPED | Voice transformation stopped. |
+| RELEASED | Engine has been released. |
+| ERROR | Engine error. |
+| CHECKING | Resource files are being checked. |
+| CALIBRATING | Auto calibration is in progress. |
 
-### 20. setDubbingNoDefaultRenderDev
-Sets the Dubbing (大饼) virtual sound card speaker to not be the default playback device.
-
-### 21. setAudioRenderVolume
-Sets the volume for a specific speaker device.
-
-**Parameters:**
-* `renderDevId`: The index number of the speaker device.
-* `value`: Volume level, ranging from 0.0 to 1.0 (Decimal/Float).
-
-### 22. setAudioRenderVolumeLevel
-Sets the volume gain (boost) for a specific speaker device.
-
-**Parameters:**
-* `renderDevId`: The index number of the speaker device.
-* `value`: Volume gain level, ranging from 0.0 to 1.0 (Decimal/Float).
-
-### 23. getAudioRenderVolume
-Retrieves the speaker volume level.
-
-**Return Value:**
-* Returns a **Decimal (Float/Double)** ranging from 0.0 to 1.0.
-
-### 24. getAudioRenderPeak
-Retrieves the peak level of the speaker output.
-
-**Return Value:**
-* Returns a **Decimal (Float/Double)** ranging from 0.0 to 1.0.
-
-### 25. startCaptureRecord
-Starts recording audio input from the microphone.
-
-**Parameters:**
-* `pcmFile`: The path and filename for the recorded PCM audio file.
-
-### 26. stopCaptureRecord
-Stops the current microphone recording session.
-
-### 27. startPlayRecordFile
-Starts playing back a recorded audio file.
-
-**Parameters:**
-* `pcmFile`: The path and filename of the PCM audio file to play.
-
-### 28. stopPlayRecordFile
-Stops the playback of the current recording file.
-
-### 29. setPlayingRecord
-Sets the current recording playback status.
-
-**Parameters:**
-* `isPlaying`: Boolean/Flag indicating if the audio is currently playing.
-
-### 30. startDumpRecord
-Starts recording the microphone, speaker, and voice-changed audio streams simultaneously (Dump mode).
-
-**Parameters:**
-* `pcmDir`: The directory path where the dump files will be saved.
-
-### 31. stopDumpRecord
-Stops the multi-stream recording (microphone, speaker, and voice-changed audio).
+## DubbingMode
+| Enum Value | Description |
+| :--- | :--- |
+| NORMAL_MODE | Normal mode. |
+| PRO_MODE | Pro mode. |

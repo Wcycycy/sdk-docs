@@ -1,16 +1,16 @@
 ---
-draft: true
+draft: false
 sidebar_position: 1
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# SDK Download
+# SDK 下载
 
-Please download the SDK below. We recommend downloading the latest version of the SDK to access the most complete features.
+请在下方下载 SDK。我们建议下载 **最新版本** 的 SDK，以获得最完整、最稳定的功能支持。
 
-| Version | Description | Download Link |
-| :---: | :--- | :--- |
-| v3.0.6 (Only supports arm64-v8a)| Added VAD | [Download ZIP](https://your-domain.com/downloads/sdk_1.2.0.zip) |
+| 版本 | 描述 | SDK 下载 | 示例 Demo |
+| :---: | :--- | :--- | :--- |
+| **v3.0.0** | 最新版本 | [下载 SDK](https://evi.dubbingai.io/sdks/dubbing-sdk-cpp-v3.0.0.zip) | [下载 Demo](https://evi.dubbingai.io/demos/dubbing-sdk-cpp-v3.0.0-demo.zip) |
 
 
