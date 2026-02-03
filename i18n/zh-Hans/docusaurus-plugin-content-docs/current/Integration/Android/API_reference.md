@@ -217,7 +217,6 @@ samplesPerCall = 48000 / 100 * bytes * channel
 | :--- | :--- |
 | id | 音色 ID |
 | name | 音色名称 |
-| cover | 音色图标 / 封面 |
 
 ## DubbingMode
 | 枚举值 | 说明 |

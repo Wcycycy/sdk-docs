@@ -216,7 +216,6 @@ samplesPerCall = 48000 / 100 * bytes * channel
 | :--- | :--- |
 | id | Voice ID. |
 | name | Voice name. |
-| cover | Voice icon/cover. |
 
 ## DubbingMode
 | Enum Value | Description |
