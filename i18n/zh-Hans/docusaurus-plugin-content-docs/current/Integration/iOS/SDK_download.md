@@ -11,4 +11,4 @@ import TabItem from '@theme/TabItem';
 
 | 版本 | 描述 | SDK 下载 | 示例 Demo |
 | :---: | :--- | :--- | :--- |
-| **v3.0.0** | 最新版本 | [下载 SDK](https://evi.dubbingai.io/sdks/dubbing-sdk-ios-v2.0.0.zip) | [下载 Demo](https://evi.dubbingai.io/demos/dubbing-sdk-ios-v2.0.0-demo.zip) |
+| **v2.0.0** | 最新版本 | [下载 SDK](https://evi.dubbingai.io/sdks/dubbing-sdk-ios-v2.0.0.zip) | [下载 Demo](https://evi.dubbingai.io/demos/dubbing-sdk-ios-v2.0.0-demo.zip) |
