@@ -2,211 +2,236 @@
 sidebar_position: 3
 ---
 
-# API 参考文档
+# API 参考
 
-## 目录
+## DBSDKManager
 
-1. [概览](#概览)
-2. [类](#类)
-3. [枚举](#枚举)
-4. [回调](#回调)
-5. [方法](#方法)
+### prepare
 
-## 概览
+准备引擎所需的资源并执行鉴权。首次调用时会下载音色模型文件，因此耗时较长。
 
-DubbingSDK 为 iOS 应用提供实时语音变换能力。SDK 支持普通模式和专业模式，并可自定义情感起伏（Intonation）与音高（Pitch）。
+### getVoiceList
 
-## 类
+获取可用音色列表。只有在引擎准备完成后，才会返回可用的音色列表。
 
-### EngineConfig
+**返回值：** `NSArray<DBSpeakerItem *>`，列表可能为空。
 
-用于配置 SDK 的引擎配置类。
+### getCurrentVoice
 
-#### 属性
+获取当前设置的音色。  
+**返回值：** 音色 ID，可能为 `nil`。
 
-| 属性 | 类型 | 说明 | 默认值 |
-|---------|------|-------------|---------|
-| `sampleRate` | `NSInteger` | 输入与输出的采样率（Hz） | 48000 |
-| `token` | `NSString *` | 鉴权 Token | `nil` |
-| `debug` | `BOOL` | 是否开启调试日志 | `NO` |
-| `transformDebug` | `BOOL` | 是否开启变声过程日志 | `NO` |
-| `channel` | `NSInteger` | 音频通道数 | 1 |
-| `format` | `DBAudioSampleFormat` | 音频采样格式 | `AUDIO_PCM_S16` |
-| `muteOnFail` | `BOOL` | 变声失败时是否静音 | `YES` |
-| `isSync` | `BOOL` | 是否使用同步变声 | `NO` |
-| `onDownload` | `DBDownloadProgressBlock` | 资源下载进度回调 | `nil` |
-| `onActionResult` | `DBActionResultBlock` | 行为结果回调 | `nil` |
+### cleanAllFiles
 
-#### 方法
+删除音色模型文件。执行该方法后，下次调用 `prepare()` 时会重新下载这些文件。
 
-##### + (instancetype)defaultConfig
+**返回值：** `void`  
+**注意：** 引擎会自动清理不必要的文件，请勿在引擎的文件目录中存放其他文件。
 
-创建一个默认配置实例。
+### start
 
-**返回值：** 使用默认参数创建的 `EngineConfig` 实例。
+启动语音变换。
 
-**示例：**
-```objc
-EngineConfig *config = [EngineConfig defaultConfig];
-```
+### stop
 
-### DBSDKManager
+停止语音变换，但不会退出语音变换线程。执行该方法后，线程中的数据会被清空，线程进入休眠状态。
 
-用于语音变换操作的核心 SDK 管理类。
-
-#### 属性
-
-| 属性 | 类型 | 说明 |
-|---------|------|-------------|
-| `engineConfig` | `EngineConfig *` | 引擎配置对象 |
-
-#### 方法
-
-##### - (void)setEngineConfig:(EngineConfig *)config
-
-设置引擎配置。
-
-**参数：**
-- `config`：引擎配置对象
-
-**示例：**
-```objc
-EngineConfig *config = [EngineConfig defaultConfig];
-config.token = @"your_token";
-config.sampleRate = 48000;
-[manager setEngineConfig:config];
-```
-
-##### - (void)prepare
-
-准备引擎（登录、校验版本、获取音色列表）。
-
-该方法为异步调用，结果会通过 `engineConfig.onActionResult` 回调返回，行为类型为 `PREPARE`。
-
-##### - (void)checkResources
-
-检查是否需要下载资源文件。
-
-下载进度通过 `engineConfig.onDownload` 回调返回，结果通过 `engineConfig.onActionResult` 返回，行为类型为 `CHECK_RESOURCES`。
-
-##### - (void)start
-
-启动语音变换引擎。
-
-该方法为异步调用，成功后引擎状态变为 `STARTED`。
-
-**注意：** 调用该方法会清空当前音色 ID 和音频缓冲区，需在启动成功后重新调用 `setVoice`。
-
-##### - (void)stop
-
-停止语音变换，但不会销毁线程。
-
-##### `- (NSArray<DBSpeakerItem *> *)getVoiceList`
-
-获取可用音色列表。
-
-##### `- (NSNumber * _Nullable)getCurrentVoice`
-
-获取当前已设置的音色 ID。
-
-##### - (DubbingEngineStatus)getEngineStatus
+### getEngineStatus
 
 获取当前引擎状态。
 
-##### - (void)setVoice:(NSNumber *)voiceId
+### setVoice(voiceId: NSNumber)
 
-设置当前音色。
+调用该方法时，会先检查该音色所需的模型是否已加载；如果未加载，则会先将模型加载到内存中。
 
-##### - (void)setMode:(DubbingMode)mode intonation:(float)intonation pitch:(float)pitch
+设置音色。该操作为异步操作，结果会通过 `DBActionResultBlock` 回调返回。
 
-设置变声模式、情感起伏和音高。
+**注意：** 只有在引擎准备完成后才能设置成功。无论当前是否正在进行语音变换，都可以设置音色。例如，在语音变换过程中，设置成功后声音会立即切换为新的音色。
 
-##### - (float)getIntonation
+### releaseEngine
 
-获取当前情感起伏值。
+释放引擎资源并终止线程。
 
-##### - (float)getPitch
+### transform(data: NSData): NSData?
+
+对音频数据进行变换。  
+输入：`data: NSData`  
+返回：`NSData?`（变换后的数据）
+
+### checkResources
+
+检查是否需要下载所需的资源文件。
+
+### setMode
+
+设置引擎处理模式（例如 Pro 模式）。
+
+```
+setMode(mode: DubbingMode, intonation: Float, pitch: Float)
+```
+
+| 参数名 | 参数类型 | 说明 |
+|--------|----------|------|
+| mode | `DubbingMode` | 模式枚举 |
+| intonation | `float` | 情感起伏 / 语调 |
+| pitch | `float` | 音高 |
+
+### getSupportIntonation
+
+检查当前音色是否支持语调调节。
+
+### getSupportPitch
+
+检查当前音色是否支持音高调节。
+
+### getMode
+
+获取当前引擎模式设置。
+
+### getIntonation
+
+获取当前语调值。
+
+### getPitch
 
 获取当前音高值。
 
-##### `- (NSArray<NSNumber *> *)getSupportIntonation`
+### proCalibration
 
-获取支持的情感起伏范围。
+执行 Pro 模式校准。
 
-##### `- (NSArray<NSNumber *> *)getSupportPitch`
+## DBSDKManager 默认参数说明
 
-获取支持的音高范围。
+| 参数名 | 参数类型 | 默认值 | 说明 |
+|--------|----------|--------|------|
+| `onActionResult` | `DBActionResultBlock` | `nil` | 引擎事件回调 |
+| `sampleRate` | `NSInteger` | `48000` | 采样率 |
+| `token` | `NSString *` | `nil` | 鉴权 Token，由开发者获取 |
+| `debug` | `BOOL` | `NO` | 是否打印引擎运行日志 |
+| `transformDebug` | `BOOL` | `NO` | 是否打印变声处理日志，开启后会显著增加日志输出 |
+| `muteOnFail` | `BOOL` | `YES` | 变声失败时是否静音 |
+| `channel` | `NSInteger` | `1` | 默认声道数 |
+| `format` | `DBAudioSampleFormat` | `AUDIO_PCM_S16` | 默认音频格式 |
+| `isSync` | `BOOL` | `NO` | 是否启用同步变换 |
 
-##### - (DubbingMode)getMode
+## EngineConfig
 
-获取当前变声模式。
+### EngineConfig()
 
-##### - (void)proCalibration:(NSString *)path success:(void(^)(float pitchFluctuation, float pitchOffset))success
+构造函数。
 
-执行专业模式校准。
+### defaultConfig
 
-##### - (NSData *)transform:(NSData *)data
+创建默认配置实例。
 
-对音频数据进行实时变声处理。
+### debug
 
-##### - (void)cleanAllFiles
+开启日志打印，仅输出引擎运行过程中的日志信息。
 
-清理所有已下载的资源文件。
+### transformDebug
 
-##### - (void)engineRelease
+开启变声日志。语音变换为高频操作，开启后日志刷新速度较快。
 
-释放引擎并回收所有资源。
+### token
 
-## 枚举
+鉴权 Token，由服务端下发。
 
-### DBAudioSampleFormat
+### sampleRate
 
-音频采样格式枚举。
+采样率，默认值为 48000。常见可选值包括 16000、24000、48000。
 
-### DubbingEngineStatus
+### onActionResult
 
-引擎状态枚举。
+引擎回调。
 
-### DubbingMode
+### muteOnFail
 
-变声模式枚举。
+变声失败时是否静音。
 
-### DubbingAction
+### isSync
 
-回调行为类型枚举。
+是否启用同步变换。
 
-### DubbingEngineCode
+### channel
 
-引擎结果码枚举。
+音频声道数。
 
-## 回调
+### format
 
-### DBDownloadProgressBlock
+音频格式设置。
 
-资源下载进度回调。
+### onDownload
 
-### DBActionResultBlock
+下载进度回调。
 
-行为结果回调。
+## DBDownloadProgressBlock
 
-## 使用流程
+### onDownload(percent: NSInteger, index: NSInteger, count: NSInteger)
 
-### 标准流程
+| 参数名 | 参数类型 | 说明 |
+|--------|----------|------|
+| percent | `NSInteger` | 当前文件下载进度（0–100） |
+| index | `NSInteger` | 当前下载文件索引，从 1 开始 |
+| count | `NSInteger` | 需要下载的文件总数 |
 
-1. 初始化 `DBSDKManager`
-2. 创建并配置 `EngineConfig`
-3. 调用 `setEngineConfig`
-4. 调用 `prepare`
-5. 调用 `checkResources`
-6. 调用 `start`
-7. 调用 `setVoice`
-8. 持续调用 `transform`
-9. 调用 `stop`
-10. 调用 `engineRelease`
+## DBActionResultBlock
 
-## 最佳实践
+### onActionResult(action: DubbingAction, code: DubbingEngineCode, msg: String?)
 
-- 调用前始终检查引擎状态  
-- 正确处理回调结果和错误码  
-- 使用结束后及时释放资源  
-- 确保音频采样率与配置一致  
+| 参数名 | 参数类型 | 说明 |
+|--------|----------|------|
+| action | `DubbingAction` 枚举 | 事件类型 |
+| code | `DubbingEngineCode` 枚举 | 事件结果 |
+| msg | `NSString *` | 事件消息，可能为 `nil` |
+
+## DubbingAction
+
+| 枚举值 | 说明 |
+|--------|------|
+| `SET_VOICE` | 设置音色 |
+| `AUTH` | 鉴权 |
+| `PREPARE` | 准备引擎 |
+| `CHECK_RESOURCES` | 检查资源文件 |
+| `PRO_CALIBRATION` | Pro 模式校准 |
+
+## DubbingEngineCode
+
+| 枚举值 | 说明 |
+|--------|------|
+| `SUCCESS` | 成功 |
+| `UNKNOWN_ERROR` | 未知错误 |
+| `NET_REQUEST_ERROR` | 网络错误 |
+| `NET_AUTH_ERROR` | 鉴权失败 |
+| `LIC_ERROR` | 鉴权失败 |
+| `ENGINE_STATUS_ERROR` | 当前引擎状态不支持该操作 |
+| `RESOURCE_MISSING_FILES` | 缺少资源文件 |
+| `VOICE_SETTING` | 音色正在设置中 |
+| `VOICE_NOT_SET` | 未设置音色 |
+
+## DubbingEngineStatus
+
+| 枚举值 | 说明 |
+|--------|------|
+| `IDLE` | 实例创建成功 |
+| `PREPARING` | 正在准备引擎资源 |
+| `PREPARED` | 引擎资源已就绪 |
+| `STARTED` | 语音变换已启动 |
+| `STOPPED` | 语音变换已停止 |
+| `RELEASED` | 引擎已释放 |
+| `ERROR` | 引擎错误 |
+| `CHECKING` | 正在检查资源文件 |
+| `CALIBRATING` | 正在进行自动校准 |
+
+## DBSpeakerItem
+
+| 成员变量 | 说明 |
+|----------|------|
+| `id` | 音色 ID |
+| `name` | 音色名称 |
+
+## DubbingMode
+
+| 枚举值 | 说明 |
+|--------|------|
+| `NORMAL_MODE` | 普通模式 |
+| `PRO_MODE` | Pro 模式 |

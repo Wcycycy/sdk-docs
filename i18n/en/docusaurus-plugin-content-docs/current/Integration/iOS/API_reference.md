@@ -4,532 +4,234 @@ sidebar_position: 3
 
 # API Reference
 
-## Table of Contents
+## DBSDKManager
 
-1. [Overview](#overview)
-2. [Classes](#classes)
-3. [Enumerations](#enumerations)
-4. [Callbacks](#callbacks)
-5. [Methods](#methods)
+### prepare
 
-## Overview
+Prepares the resources required by the engine and performs authentication. The first call will download voice model files, which may take a long time.
 
-DubbingSDK provides real-time voice transformation capabilities for iOS applications. The SDK supports both normal and professional modes with customizable intonation and pitch.
+### getVoiceList
 
-## Classes
+Gets the list of available voices. Only returns available voices after the engine is prepared.
 
-### EngineConfig
+**Returns:** `NSArray<DBSpeakerItem *>`, the list may be empty.
 
-Engine configuration class for setting up the SDK.
+### getCurrentVoice
 
-#### Properties
+Gets the currently set voice.  
+**Returns:** Voice ID, may be `nil`.
 
-| Property | Type | Description | Default |
-|---------|------|-------------|---------|
-| `sampleRate` | `NSInteger` | Sample rate for both input and output (Hz) | 48000 |
-| `token` | `NSString *` | Authentication token | `nil` |
-| `debug` | `BOOL` | Enable debug logging | `NO` |
-| `transformDebug` | `BOOL` | Enable transform logging | `NO` |
-| `channel` | `NSInteger` | Audio channel count | 1 |
-| `format` | `DBAudioSampleFormat` | Audio sample format | `AUDIO_PCM_S16` |
-| `muteOnFail` | `BOOL` | Mute on transformation failure | `YES` |
-| `isSync` | `BOOL` | Use synchronous transformation | `NO` |
-| `onDownload` | `DBDownloadProgressBlock` | Download progress callback | `nil` |
-| `onActionResult` | `DBActionResultBlock` | Action result callback | `nil` |
+### cleanAllFiles
 
-#### Methods
+Deletes voice model files. After calling this method, these files will be re-downloaded the next time `prepare()` is called.
 
-##### + (instancetype)defaultConfig
+**Returns:** `void`  
+**Note:** The engine automatically cleans up unnecessary files. Do not store other files in the engine's file directory.
 
-Create a default configuration instance.
+### start
 
-**Returns:** A new `EngineConfig` instance with default values.
+Starts voice transformation.
 
-**Example:**
-```objc
-EngineConfig *config = [EngineConfig defaultConfig];
+### stop
+
+Stops voice transformation, but does not exit the voice transformation thread. After calling this method, the data in the thread will be cleared and the thread will enter a sleep state.
+
+### getEngineStatus
+
+Gets the current engine status.
+
+### setVoice(voiceId: NSNumber)
+
+When calling this method, it first checks whether the model required for this voice has been loaded; if not loaded, it will load the model into memory first.
+
+Sets the voice. This operation is asynchronous, and the result will be returned through the `DBActionResultBlock` callback.
+
+**Note:** Can only be set successfully after the engine is prepared. The voice can be set regardless of whether voice transformation is currently in progress. For example, during voice transformation, after successful setting, the voice will immediately switch to the new voice.
+
+### releaseEngine
+
+Releases engine resources and terminates the thread.
+
+### transform(data: NSData): NSData?
+
+Transforms audio data.  
+Input: `data: NSData`  
+Returns: `NSData?` (transformed data)
+
+### checkResources
+
+Checks whether required resource files need to be downloaded.
+
+### setMode
+
+Sets the engine processing mode (e.g., Pro mode).
+
+```
+setMode(mode: DubbingMode, intonation: Float, pitch: Float)
 ```
 
-### DBSDKManager
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| mode | `DubbingMode` | Mode enumeration |
+| intonation | `float` | Emotional variation / Intonation |
+| pitch | `float` | Pitch |
 
-Main SDK manager class for voice transformation operations.
+### getSupportIntonation
 
-#### Properties
+Checks whether the current voice supports intonation adjustment.
 
-| Property | Type | Description |
-|---------|------|-------------|
-| `engineConfig` | `EngineConfig *` | Engine configuration object |
+### getSupportPitch
 
-#### Methods
+Checks whether the current voice supports pitch adjustment.
 
-##### - (void)setEngineConfig:(EngineConfig *)config
+### getMode
 
-Set engine configuration.
+Gets the current engine mode settings.
 
-**Parameters:**
-- `config`: Engine configuration object
+### getIntonation
 
-**Example:**
-```objc
-EngineConfig *config = [EngineConfig defaultConfig];
-config.token = @"your_token";
-config.sampleRate = 48000;
-[manager setEngineConfig:config];
-```
+Gets the current intonation value.
 
-##### - (void)prepare
+### getPitch
 
-Prepare the engine (login, verify version, get speaker list).
+Gets the current pitch value.
 
-This is an asynchronous operation. Results are returned through `engineConfig.onActionResult` callback with action `PREPARE`.
+### proCalibration
 
-**Example:**
-```objc
-[manager prepare];
-```
+Performs Pro mode calibration.
 
-##### - (void)checkResources
+## DBSDKManager Default Parameters
 
-Check if resource files need to be downloaded.
+| Parameter | Type | Default Value | Description |
+|-----------|------|---------------|-------------|
+| `onActionResult` | `DBActionResultBlock` | `nil` | Engine event callback |
+| `sampleRate` | `NSInteger` | `48000` | Sample rate |
+| `token` | `NSString *` | `nil` | Authentication Token, obtained by the developer |
+| `debug` | `BOOL` | `NO` | Whether to print engine runtime logs |
+| `transformDebug` | `BOOL` | `NO` | Whether to print voice transformation logs. Enabling this will significantly increase log output |
+| `muteOnFail` | `BOOL` | `YES` | Whether to mute when voice transformation fails |
+| `channel` | `NSInteger` | `1` | Default number of channels |
+| `format` | `DBAudioSampleFormat` | `AUDIO_PCM_S16` | Default audio format |
+| `isSync` | `BOOL` | `NO` | Whether to enable synchronous transformation |
 
-Download progress is reported through `engineConfig.onDownload` callback. Results are returned through `engineConfig.onActionResult` callback with action `CHECK_RESOURCES`.
+## EngineConfig
 
-**Example:**
-```objc
-[manager checkResources];
-```
+### EngineConfig()
 
-##### - (void)start
+Constructor.
 
-Start the voice transformation engine.
+### defaultConfig
 
-This is an asynchronous operation. Results are returned through `engineConfig.onActionResult` callback with action `PREPARE`. The engine status will change to `STARTED` when ready.
+Creates a default configuration instance.
 
-**Note:** This method clears the current speaker ID and audio buffers. You must call `setVoice` after engine starts successfully.
+### debug
 
-**Example:**
-```objc
-[manager start];
-```
+Enables log printing, only outputs log information during engine runtime.
 
-##### - (void)stop
+### transformDebug
 
-Stop the voice transformation engine.
+Enables voice transformation logs. Voice transformation is a high-frequency operation, enabling this will result in faster log refresh rates.
 
-This is an asynchronous operation. Results are returned through `engineConfig.onActionResult` callback with action `PREPARE`.
+### token
 
-**Example:**
-```objc
-[manager stop];
-```
+Authentication Token, issued by the server.
 
-##### `- (NSArray<DBSpeakerItem *> *)getVoiceList`
+### sampleRate
 
-Get the list of available voices.
+Sample rate, default value is 48000. Common optional values include 16000, 24000, 48000.
 
-**Returns:** Array of `DBSpeakerItem` objects, or empty array if not available.
+### onActionResult
 
-**Example:**
-```objc
-NSArray<DBSpeakerItem *> *voices = [manager getVoiceList];
-for (DBSpeakerItem *voice in voices) {
-    NSLog(@"Voice ID: %@, Name: %@", voice.id, voice.name);
-}
-```
+Engine callback.
 
-##### `- (NSNumber * _Nullable)getCurrentVoice`
+### muteOnFail
 
-Get the currently set voice ID.
+Whether to mute when voice transformation fails.
 
-**Returns:** Current voice ID, or `nil` if not set.
+### isSync
 
-**Example:**
-```objc
-NSNumber *voiceId = [manager getCurrentVoice];
-if (voiceId) {
-    NSLog(@"Current voice ID: %@", voiceId);
-}
-```
+Whether to enable synchronous transformation.
 
-##### `- (DubbingEngineStatus)getEngineStatus`
+### channel
 
-Get the current engine status.
+Number of audio channels.
 
-**Returns:** Current engine status (`DubbingEngineStatus` enum).
+### format
 
-**Example:**
-```objc
-DubbingEngineStatus status = [manager getEngineStatus];
-if (status == STARTED) {
-    // Engine is running
-}
-```
+Audio format settings.
 
-##### `- (void)setVoice:(NSNumber *)voiceId`
+### onDownload
 
-Set the voice for transformation.
+Download progress callback.
 
-**Parameters:**
-- `voiceId`: Voice ID (from `getVoiceList`)
+## DBDownloadProgressBlock
 
-This is an asynchronous operation. Results are returned through `engineConfig.onActionResult` callback with action `SET_VOICE`.
+### onDownload(percent: NSInteger, index: NSInteger, count: NSInteger)
 
-**Example:**
-```objc
-[manager setVoice:@(1)];
-```
-
-##### - (void)setMode:(DubbingMode)mode intonation:(float)intonation pitch:(float)pitch
-
-Set transformation mode, intonation, and pitch.
-
-**Parameters:**
-- `mode`: Transformation mode (`NORMAL_MODE` or `PRO_MODE`)
-- `intonation`: Intonation value (pitch fluctuation, typically -30.0 to 30.0)
-- `pitch`: Pitch value (pitch offset, typically -200.0 to 200.0)
-
-**Example:**
-```objc
-[manager setMode:PRO_MODE intonation:0.7 pitch:0.6];
-```
-
-##### - (float)getIntonation
-
-Get current intonation value.
-
-**Returns:** Current intonation value.
-
-**Example:**
-```objc
-float intonation = [manager getIntonation];
-```
-
-##### - (float)getPitch
-
-Get current pitch value.
-
-**Returns:** Current pitch value.
-
-**Example:**
-```objc
-float pitch = [manager getPitch];
-```
-
-##### `- (NSArray<NSNumber *> *)getSupportIntonation`
-
-Get supported intonation range.
-
-**Returns:** Array with two elements: `[min, max]`.
-
-**Example:**
-```objc
-NSArray<NSNumber *> *range = [manager getSupportIntonation];
-float min = [range[0] floatValue];
-float max = [range[1] floatValue];
-```
-
-##### `- (NSArray<NSNumber *> *)getSupportPitch`
-
-Get supported pitch range.
-
-**Returns:** Array with two elements: `[min, max]`.
-
-**Example:**
-```objc
-NSArray<NSNumber *> *range = [manager getSupportPitch];
-float min = [range[0] floatValue];
-float max = [range[1] floatValue];
-```
-
-##### - (DubbingMode)getMode
-
-Get current transformation mode.
-
-**Returns:** Current mode (`NORMAL_MODE` or `PRO_MODE`).
-
-**Example:**
-```objc
-DubbingMode mode = [manager getMode];
-if (mode == PRO_MODE) {
-    // Pro mode is active
-}
-```
-
-##### - (void)proCalibration:(NSString *)path success:(void(^)(float pitchFluctuation, float pitchOffset))success
-
-Perform professional mode calibration.
-
-**Parameters:**
-- `path`: Path to 10-second PCM audio file (must match `sampleRate` in config)
-- `success`: Success callback with recommended intonation and pitch values
-
-**Note:** The audio file should be named `audio.pcm` and placed in the resource directory (default: `dubbing_resource`). The file must match the `sampleRate` configured in `EngineConfig`.
-
-**Example:**
-```objc
-NSString *calibrationFile = @"/path/to/audio.pcm";
-[manager proCalibration:calibrationFile success:^(float pitchFluctuation, float pitchOffset) {
-    NSLog(@"Recommended intonation: %f, pitch: %f", pitchFluctuation, pitchOffset);
-    [manager setMode:PRO_MODE intonation:pitchFluctuation pitch:pitchOffset];
-}];
-```
-
-##### - (NSData *)transform:(NSData *)data
-
-Transform audio data in real-time.
-
-**Parameters:**
-- `data`: Input PCM audio data
-
-**Returns:** Transformed audio data (same format as input). Returns silent data or original data based on `muteOnFail` setting if engine is not ready.
-
-**Note:** 
-- Minimum data size is 10ms of audio
-- Data smaller than 10ms will be accumulated until minimum size is reached
-- Engine internally converts to 16-bit mono for processing
-- If engine is not started or voice is not set, returns silent data or original data based on `muteOnFail`
-
-**Example:**
-```objc
-NSData *inputData = ...; // Your PCM audio data
-NSData *outputData = [manager transform:inputData];
-// Use outputData for playback
-```
-
-##### - (void)cleanAllFiles
-
-Clean all downloaded resource files.
-
-This is an asynchronous operation. Results are returned through `engineConfig.onActionResult` callback with action `CLEAN_FILES`.
-
-**Example:**
-```objc
-[manager cleanAllFiles];
-```
-
-##### - (void)engineRelease
-
-Release the engine and free all resources.
-
-**Example:**
-```objc
-[manager engineRelease];
-```
-
-## Enumerations
-
-### DBAudioSampleFormat
-
-Audio sample format enumeration.
-
-| Value | Description |
-|-------|-------------|
-| `AUDIO_PCM_u8` | Signed 8-bit PCM |
-| `AUDIO_PCM_S16` | Signed 16-bit PCM |
-| `AUDIO_PCM_S24` | Signed 24-bit PCM (in int32, LSB aligned) |
-| `AUDIO_PCM_S32` | Signed 32-bit PCM |
-| `AUDIO_PCM_F32` | Float32 PCM (-1.0 ~ 1.0) |
-
-### DubbingEngineStatus
-
-Engine status enumeration.
-
-| Value | Description |
-|-------|-------------|
-| `IDLE` | Instance successfully created |
-| `PREPARING` | Engine resources are being prepared |
-| `PREPARED` | Engine resources are ready |
-| `STARTED` | Voice conversion started |
-| `STOPPED` | Voice conversion stopped |
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| percent | `NSInteger` | Current file download progress (0–100) |
+| index | `NSInteger` | Current downloading file index, starting from 1 |
+| count | `NSInteger` | Total number of files to download |
+
+## DBActionResultBlock
+
+### onActionResult(action: DubbingAction, code: DubbingEngineCode, msg: String?)
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| action | `DubbingAction` enum | Event type |
+| code | `DubbingEngineCode` enum | Event result |
+| msg | `NSString *` | Event message, may be `nil` |
+
+## DubbingAction
+
+| Enum Value | Description |
+|------------|-------------|
+| `SET_VOICE` | Set voice |
+| `AUTH` | Authentication |
+| `PREPARE` | Prepare engine |
+| `CHECK_RESOURCES` | Check resource files |
+| `PRO_CALIBRATION` | Pro mode calibration |
+
+## DubbingEngineCode
+
+| Enum Value | Description |
+|------------|-------------|
+| `SUCCESS` | Success |
+| `UNKNOWN_ERROR` | Unknown error |
+| `NET_REQUEST_ERROR` | Network error |
+| `NET_AUTH_ERROR` | Authentication failed |
+| `LIC_ERROR` | Authentication failed |
+| `ENGINE_STATUS_ERROR` | Current engine status does not support this operation |
+| `RESOURCE_MISSING_FILES` | Missing resource files |
+| `VOICE_SETTING` | Voice is being set |
+| `VOICE_NOT_SET` | Voice not set |
+
+## DubbingEngineStatus
+
+| Enum Value | Description |
+|------------|-------------|
+| `IDLE` | Instance created successfully |
+| `PREPARING` | Preparing engine resources |
+| `PREPARED` | Engine resources ready |
+| `STARTED` | Voice transformation started |
+| `STOPPED` | Voice transformation stopped |
 | `RELEASED` | Engine released |
 | `ERROR` | Engine error |
-| `CHECKING` | Resource files are being checked |
-| `CALIBRATING` | Auto calibration in progress |
+| `CHECKING` | Checking resource files |
+| `CALIBRATING` | Performing automatic calibration |
 
-### DubbingMode
+## DBSpeakerItem
 
-Transformation mode enumeration.
+| Member Variable | Description |
+|-----------------|-------------|
+| `id` | Voice ID |
+| `name` | Voice name |
 
-| Value | Description |
-|-------|-------------|
-| `NORMAL_MODE` | Normal mode (default) |
-| `PRO_MODE` | Professional mode |
+## DubbingMode
 
-### DubbingAction
-
-Action type enumeration for callbacks.
-
-| Value | Description |
-|-------|-------------|
-| `SET_VOICE` | Set voice action |
-| `AUTH` | Authentication action |
-| `PREPARE` | Prepare engine action |
-| `CHECK_RESOURCES` | Check resources action |
-| `PRO_CALIBRATION` | Professional calibration action |
-| `CLEAN_FILES` | Clean files action |
-
-### DubbingEngineCode
-
-Engine result code enumeration.
-
-| Value | Description |
-|-------|-------------|
-| `SUCCESS` | Operation succeeded |
-| `UNKNOWN_ERROR` | Unknown error |
-| `NET_REQUEST_ERROR` | Network request error |
-| `NET_AUTH_ERROR` | Authentication error |
-| `LIC_ERROR` | License error |
-| `ENGINE_STATUS_ERROR` | Engine status error (operation not allowed in current state) |
-| `RESOURCE_MISSING_FILES` | Resource files missing |
-| `VOICE_SETTING` | Voice is being set |
-| `VOICE_NOT_SET` | Voice is not set |
-
-## Callbacks
-
-### DBDownloadProgressBlock
-
-Download progress callback block.
-
-**Signature:**
-```objc
-typedef void(^DBDownloadProgressBlock)(NSInteger percent, NSInteger index, NSInteger count);
-```
-
-**Parameters:**
-- `percent`: Current file download progress (0-100, 100 means current file completed)
-- `index`: Current downloading file index (starting from 1)
-- `count`: Total number of files to download
-
-**Example:**
-```objc
-config.onDownload = ^(NSInteger percent, NSInteger index, NSInteger count) {
-    NSLog(@"Download: %ld%% (%ld/%ld)", (long)percent, (long)index, (long)count);
-};
-```
-
-### DBActionResultBlock
-
-Action result callback block.
-
-**Signature:**
-```objc
-typedef void(^DBActionResultBlock)(DubbingAction action, DubbingEngineCode code, NSString * _Nullable msg);
-```
-
-**Parameters:**
-- `action`: Action type (`DubbingAction` enum)
-- `code`: Result code (`DubbingEngineCode` enum)
-- `msg`: Result message (may be `nil`)
-
-**Example:**
-```objc
-config.onActionResult = ^(DubbingAction action, DubbingEngineCode code, NSString * _Nullable msg) {
-    if (code == SUCCESS) {
-        NSLog(@"Action %ld succeeded: %@", (long)action, msg ?: @"");
-    } else {
-        NSLog(@"Action %ld failed: %@", (long)action, msg ?: @"");
-    }
-};
-```
-
-## Models
-
-### DBSpeakerItem
-
-Speaker/Voice item model.
-
-#### Properties
-
-| Property | Type | Description |
-|---------|------|-------------|
-| `id` | `NSNumber *` | Speaker ID |
-| `name` | `NSString *` | Speaker name |
-
-**Example:**
-```objc
-NSArray<DBSpeakerItem *> *voices = [manager getVoiceList];
-for (DBSpeakerItem *voice in voices) {
-    NSLog(@"ID: %@, Name: %@", voice.id, voice.name);
-}
-```
-
-## Usage Flow
-
-### Standard Flow
-
-1. **Initialize**: Create `DBSDKManager` instance
-2. **Configure**: Create `EngineConfig`, set properties and callbacks
-3. **Set Config**: Call `setEngineConfig:`
-4. **Prepare**: Call `prepare` (waits for `PREPARE` success in callback, status becomes `PREPARED`)
-5. **Check Resources**: Call `checkResources` (waits for `CHECK_RESOURCES` success in callback)
-6. **Start**: Call `start` (waits for `PREPARE` success in callback, status becomes `STARTED`)
-7. **Set Voice**: Call `setVoice:` (waits for `SET_VOICE` success in callback)
-8. **Transform**: Call `transform:` repeatedly with audio data
-9. **Stop**: Call `stop` when done
-10. **Release**: Call `engineRelease` to free resources
-
-### Pro Mode Flow
-
-1. Follow standard flow steps 1-6
-2. **Calibrate** (optional): Call `proCalibration:success:` with 10-second PCM file
-3. **Set Mode**: Call `setMode:intonation:pitch:` with `PRO_MODE` and calibration values
-4. **Set Voice**: Call `setVoice:`
-5. **Transform**: Call `transform:` repeatedly
-
-## Sample Rate Handling
-
-The SDK uses a unified `sampleRate` for both input and output. The underlying engine internally handles resampling:
-
-- **Input Processing**: If `sampleRate != 16000`, the engine resamples input from `sampleRate` to 16000Hz
-- **Core Processing**: Engine processes at fixed 16000Hz input and 24000Hz output
-- **Output Processing**: If `sampleRate != 24000`, the engine resamples output from 24000Hz to `sampleRate`
-
-**Example:**
-```objc
-config.sampleRate = 48000;  // Set to 48000Hz
-// Engine automatically handles:
-// 48000Hz input -> 16000Hz (resample) -> 24000Hz (process) -> 48000Hz (resample)
-```
-
-## Error Handling
-
-Always check `DubbingEngineCode` in `onActionResult` callback:
-
-```objc
-config.onActionResult = ^(DubbingAction action, DubbingEngineCode code, NSString * _Nullable msg) {
-    switch (code) {
-        case SUCCESS:
-            // Handle success
-            break;
-        case NET_AUTH_ERROR:
-            // Handle authentication error
-            break;
-        case RESOURCE_MISSING_FILES:
-            // Handle missing files - call checkResources
-            break;
-        case ENGINE_STATUS_ERROR:
-            // Handle state error - check current status
-            break;
-        default:
-            // Handle other errors
-            break;
-    }
-};
-```
-
-## Thread Safety
-
-- All callbacks are called on background threads
-- Use `dispatch_async(dispatch_get_main_queue(), ...)` to update UI
-- `transform:` method is thread-safe and can be called from any thread
-- Multiple calls to `transform:` can be made concurrently
-
-## Best Practices
-
-1. **Always check engine status** before calling methods that require specific states
-2. **Handle callbacks properly** - don't ignore error codes
-3. **Clean up resources** - call `stop` and `engineRelease` when done
-4. **Use appropriate audio format** - match your audio pipeline format
-5. **Set voice after start** - ensure engine is started before setting voice (start clears voice ID)
-6. **Clear buffers on start** - the SDK automatically clears buffers when `start` is called
-7. **Match sample rates** - ensure input audio sample rate matches `config.sampleRate`
+| Enum Value | Description |
+|------------|-------------|
+| `NORMAL_MODE` | Normal mode |
+| `PRO_MODE` | Pro mode |
