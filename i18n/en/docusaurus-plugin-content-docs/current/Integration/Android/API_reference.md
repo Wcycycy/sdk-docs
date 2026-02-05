@@ -220,5 +220,5 @@ samplesPerCall = 48000 / 100 * bytes * channel
 ## DubbingMode
 | Enum Value | Description |
 | :--- | :--- |
-| NORMAL | Normal mode. |
-| Pro | Pro mode. |
+| NORMAL_MODE | Normal mode. |
+| PRO_MODE | Pro mode. |

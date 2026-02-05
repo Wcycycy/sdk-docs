@@ -221,5 +221,5 @@ samplesPerCall = 48000 / 100 * bytes * channel
 ## DubbingMode
 | 枚举值 | 说明 |
 | :--- | :--- |
-| NORMAL | 普通模式 |
-| Pro | Pro 模式 |
+| NORMAL_MODE | 普通模式 |
+| PRO_MODE | Pro 模式 |
